@@ -70,22 +70,26 @@ if selection == 'Accueil':
     col1, col2 = st.columns(2)
 
     with col1:
-        st.header("Mathieu")
-        st.image("STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 300)
+        col3, col4 = st.columns(2)
+
+        with col3:
+            st.markdown("<h2 style='text-align: center; color: white;'>Mathieu</h2>", unsafe_allow_html=True)
+            st.image("STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 150)
+
+        with col4:
+            st.markdown("<h2 style='text-align: center; color: white;'>Loïc</h2>", unsafe_allow_html=True)
+            st.image("STREAMLIT/Images/377.webp", width = 150)
 
     with col2:
-        st.header("Loïc")
-        st.image("STREAMLIT/Images/377.webp", width = 300)
+        col5, col6 = st.columns(2)
 
-    col1, col2 = st.columns(2)
+        with col5:
+            st.markdown("<h2 style='text-align: center; color: white;'>Kilian</h2>", unsafe_allow_html=True)
+            st.image("STREAMLIT/Images/POSE_-16.png", width = 150)
 
-    with col2:
-        st.header("Malo")
-        st.image("STREAMLIT/Images/Sans titre.png", width = 300)
-
-    with col1:
-        st.header("Kilian")
-        st.image("STREAMLIT/Images/POSE_-16.png", width = 300)
+        with col6:
+            st.markdown("<h2 style='text-align: center; color: white;'>Malo</h2>", unsafe_allow_html=True)
+            st.image("STREAMLIT/Images/Sans titre.png", width = 150)
 
 if selection == 'Trouvez un joueur':
 
@@ -148,7 +152,7 @@ elif selection == 'Trouvez le joueur idéal':
     if critere_pied:
         st.selectbox("Quel pied ?",
         ['Droit', 'Gauche'])
-        
+
     critere_age = st.toggle("Avez-vous un critère d'âge ?", value = False)
     if critere_age:
         age = st.slider("Quelle tranche d'âge ?", int(df['Age'].min()), int(df['Age'].max()), value = (int(df['Age'].min()), int(df['Age'].max())))
