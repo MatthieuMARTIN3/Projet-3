@@ -73,7 +73,7 @@ if selection == 'Accueil':
         col3, col4 = st.columns(2)
 
         with col3:
-            st.markdown("<h2 style='text-align: center; color: white;'>Mathieu</h2>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center; color: white;'>Matthieu</h2>", unsafe_allow_html=True)
             st.image("STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 150)
 
         with col4:
@@ -148,18 +148,22 @@ elif selection == 'Trouvez le joueur idéal':
 
     st.header("Des préférences ?")
 
-    critere_pied = st.toggle("Avez-vous un critère de pied ?", value = False)
+    critere_pied = st.toggle("Avez-vous un critère de pied fort ?", value = False)
     if critere_pied:
-        st.selectbox("Quel pied ?",
+        st.selectbox("Quel pied fort ?",
         ['Droit', 'Gauche'])
 
     critere_age = st.toggle("Avez-vous un critère d'âge ?", value = False)
     if critere_age:
         age = st.slider("Quelle tranche d'âge ?", int(df['Age'].min()), int(df['Age'].max()), value = (int(df['Age'].min()), int(df['Age'].max())))
+        min_age = min(age)
+        max_age = max(age)
 
     critere_taille = st.toggle("Avez-vous un critère de taille ?", value = False)
     if critere_taille:
-        Height = st.slider("Quelle taille ?", min(set_taille), max(set_taille), value=(min(set_taille), max(set_taille)))
+        taille = st.slider("Quelle taille ?", min(set_taille), max(set_taille), value=(min(set_taille), max(set_taille)))
+        min_taille = min(taille)
+        max_taille = max(taille)
 
 
 
