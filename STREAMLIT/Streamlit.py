@@ -16,10 +16,6 @@ import requests
 # BASE 
 
 df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/players_3120.csv')
-df['Best position'] = df['Best position'].apply(lambda x : x.replace('RWB', 'RB').replace('LWB', 'LB')).replace('ST', 'CF')
-df['Height'] = df['Height'].apply(lambda x : int(x[:3]))
-
-df_final = df.copy()
 
 # FONCTIONS
 
@@ -28,28 +24,28 @@ url_base = 'https://sofifa.com/player/'
 from bs4 import BeautifulSoup
 import requests
 
+def revenue(test):
+    if 'M' not in test and 'K' not in test:
+        resultat = int(test.replace('€', ''))
+    elif 'K' in test and '.' not in test:
+        resultat = int(test.replace('K', '000').replace('€', ''))
+    elif 'K' in test and '.'  in test:
+        resultat = int(test.replace('K', '00').replace('€', ''))
+    elif 'M' in test and '.' not in test:
+        resultat = int(test.replace('M', '000000').replace('€', ''))
+    elif 'M' in test and '.' in test:
+        resultat = int(test.replace('M', '00000').replace('.', '').replace('€', ''))
 
+    return resultat
 
-#SALAIRE ET VALEUR
-
-# BASE 
-
-df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/players_3120.csv')
+df['Revenue'] = df['Wage'].apply(revenue)
+df['Valeur'] = df['Value'].apply(revenue)
 df['Best position'] = df['Best position'].apply(lambda x : x.replace('RWB', 'RB').replace('LWB', 'LB')).replace('ST', 'CF')
 df['Height'] = df['Height'].apply(lambda x : int(x[:3]))
 
 df_final = df.copy()
 
-# FONCTIONS
-
-navigator = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)'
-url_base = 'https://sofifa.com/player/'
-from bs4 import BeautifulSoup
-import requests
-
-
-
-#SALAIRE ET VALEUR
+# WEB SCRAPING
 
 def end_contract(id):
     id = int(id)
@@ -62,9 +58,12 @@ def end_contract(id):
         if 'Contract valid until' in balise_parent.get_text().strip():
                 end_contract = balise_parent.get_text().strip()
 
-    end_year = max(re.findall('\d{4,}', end_contract))
-    end_year = int(end_year)
-
+    try:
+        end_year = max(re.findall('\d{4,}', end_contract))
+        end_year = int(end_year)
+    except:
+        end_year = 'Unknown'
+    
     return end_year
 
 def salaire(id):
@@ -206,52 +205,22 @@ def overall(id):
             if 'Overall' in balise_parent2.get_text().strip():
                 overall = balise_parent2.get_text().strip()
 
-    overall = int(overall[:2])
+    try:
+        overall = int(overall[:2])
+    except:
+        overall = 'Unknown'
+
     return overall
 
 
-# CODE
-
-list_taille = df['Height'].to_list()
-
-set_taille = set(list_taille)
-
-liste_valeurs = df['Value'].to_list()
-set_valeurs = []
-
-for element in liste_valeurs:
-    if 'M' not in element and 'K' not in element:
-        set_valeurs.append(int(element.replace('€', '')))
-    elif 'K' in element:
-        set_valeurs.append(int(element.replace('K', '000').replace('€', '')))
-    elif 'M' in element and '.' not in element:
-        set_valeurs.append(int(element.replace('M', '000000').replace('€', '')))
-    elif 'M' in element and '.' in element:
-        set_valeurs.append(int(element.replace('M', '00000').replace('.', '').replace('€', '')))
-        
-    
-set_valeurs = set(set_valeurs)
-
-liste_salaires = df['Wage'].to_list()
-set_salaires = []
-
-for element in liste_salaires:
-    if 'K' in element:
-        set_salaires.append(int(element.replace('K', '000').replace('€', '')))
-    else:
-        set_salaires.append(int(element.replace('€', '')))
-        
-set_salaires = set(set_salaires)
-
 # STREAMLIT
+
 
 with st.sidebar:
     selection = option_menu(
                 menu_title=None,
                 options = ["Accueil", "Trouvez un joueur", "Trouvez le joueur idéal"]
             )
-
-
 
 if selection == 'Accueil':
 
@@ -267,24 +236,24 @@ if selection == 'Accueil':
 
         with col3:
             st.markdown("<h2 style='text-align: center; color: white;'>Matthieu</h2>", unsafe_allow_html=True)
-            st.image("STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 150)
+            st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 150)
 
         with col4:
             st.markdown("<h2 style='text-align: center; color: white;'>Loïc</h2>", unsafe_allow_html=True)
-            st.image("STREAMLIT/Images/377.webp", width = 150)
+            st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/377.webp", width = 150)
 
     with col2:
         col5, col6 = st.columns(2)
 
         with col5:
             st.markdown("<h2 style='text-align: center; color: white;'>Kilian</h2>", unsafe_allow_html=True)
-            st.image("STREAMLIT/Images/POSE_-16.png", width = 150)
+            st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/POSE_-16.png", width = 150)
 
         with col6:
             st.markdown("<h2 style='text-align: center; color: white;'>Malo</h2>", unsafe_allow_html=True)
-            st.image("STREAMLIT/Images/Sans titre.png", width = 150)
+            st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/Sans titre.png", width = 150)
 
-if selection == 'Trouvez un joueur':
+elif selection == 'Trouvez un joueur':
 
     # Sélectionner un joueur similaire
 
@@ -313,6 +282,8 @@ if selection == 'Trouvez un joueur':
             placeholder="Select")
 
 elif selection == 'Trouvez le joueur idéal':
+
+
 
 # Trouver un joueur selon certaines caractéristiques
 
@@ -359,12 +330,6 @@ elif selection == 'Trouvez le joueur idéal':
 
     df_final = df_final[df_final['Best position'].str.contains(poste)]
 
-    st.header("Parlons chiffres :")
-
-    budget_transfert = st.slider("Quelle valeur ?", min(set_valeurs), max(set_valeurs), value=(min(set_valeurs), max(set_valeurs)))
-
-    budget_salaire = st.slider("Quelle salaire ?", min(set_salaires), max(set_salaires), value=(min(set_salaires), max(set_salaires)))
-
 
     st.header("Des préférences ?")
 
@@ -390,19 +355,55 @@ elif selection == 'Trouvez le joueur idéal':
 
     critere_taille = st.toggle("Avez-vous un critère de taille ?", value = False)
     if critere_taille:
-        taille = st.slider("Quelle taille ?", min(set_taille), max(set_taille), value=(min(set_taille), max(set_taille)))
+        taille = st.slider("Quelle taille ?", min(df['Height']), max(df['Height']), value=(min(df['Height']), max(df['Height'])))
         min_taille = min(taille)
         max_taille = max(taille)
         df_final = df_final[df_final['Height'] <= max_taille]
         df_final = df_final[df_final['Height'] >= min_taille]
 
     
-    df_final = df_final.sort_values(by = 'Overall rating', ascending = False)
+    st.header("Parlons chiffres :")
     
-    resultats = st.toggle("Montrer les résultats", value = False)
-    if resultats:
+    critere_budget = st.toggle("Avez-vous un critère de coût de transfert ?", value = False)
+    if critere_budget:
+        # budget_transfert = st.slider("Quelle valeur ?", min(df_final['Valeur']), max(df_final['Valeur']), value=(min(df_final['Valeur']), max(df_final['Valeur'])))
+        # min_budget = min(budget_transfert)
+        # max_budget = max(budget_transfert)
 
-        st.text(f'Nous avons {len(df_final)} résultats.')
+        col1, col2 = st.columns(2)
+        with col2:
+            max_budget = st.text_input("Quel est le coût de transfert maximum ?", max(df_final['Valeur']), autocomplete= str(max(df_final['Valeur'])))
+            
+        with col1:
+            min_budget = st.text_input("Quel est le coût de transfert minimum ?", min(df_final['Valeur']), autocomplete= str(max(df_final['Valeur'])))
+        
+        max_budget = int(max_budget) 
+        min_budget = int(min_budget)
+        df_final = df_final[df_final['Valeur'] <= max_budget]
+        df_final = df_final[df_final['Valeur'] >= min_budget]
+
+    critere_salaire = st.toggle("Avez-vous un critère de salaire ?", value = False)
+    if critere_salaire:
+        # budget_salaire = st.slider("Quelle salaire ?", min(df_final['Revenue']), max(df_final['Revenue']), value=(min(df_final['Revenue']), max(df_final['Revenue'])))
+        # min_salaire = min(budget_salaire)
+        # max_salaire = max(budget_salaire)
+
+        col1, col2 = st.columns(2)
+        with col2:
+            max_salaire = st.text_input("Quel est le salaire maximum ?", max(df_final['Revenue']), autocomplete= str(max(df_final['Revenue'])))
+        with col1:
+            min_salaire = st.text_input("Quel est le salaire minimum ?", min(df_final['Revenue']), autocomplete= str(max(df_final['Revenue'])))
+            
+        max_salaire = int(max_salaire)
+        min_salaire = int(min_salaire)
+        df_final = df_final[df_final['Revenue'] <= max_salaire]
+        df_final = df_final[df_final['Revenue'] >= min_salaire]
+
+    df_final = df_final.sort_values(by = 'Overall rating', ascending = False)
+
+    resultats = st.button("Montrer / Actualiser les résultats", type = 'primary')
+
+    if resultats:
 
         col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
@@ -421,26 +422,28 @@ elif selection == 'Trouvez le joueur idéal':
             id = df_final['ID'].iloc[n]
             date_contrat = end_contract(id)
 
-            if  date_contrat >= 2024:
+            try:
+                if date_contrat >= 2024 or date_contrat == 'Unknown':
                 
-                nom = name(id)
-                score = overall(id)
-                salary = salaire(id)
-                achat = valeur(id)
+                    nom = name(id)
+                    score = overall(id)
+                    salary = salaire(id)
+                    achat = valeur(id)
 
-                with col1:
-                    st.markdown(f"<div style='text-align: center;'>{nom}</div>", unsafe_allow_html=True)
-                with col2:
-                    st.markdown(f"<div style='text-align: center;'>{score}</div>", unsafe_allow_html=True)
-                with col3:
-                    st.markdown(f"<div style='text-align: center;'>{salary}</div>", unsafe_allow_html=True)
-                with col4:
-                    st.markdown(f"<div style='text-align: center;'>{achat}</div>", unsafe_allow_html=True)
-                with col5:
-                    st.markdown(f"<div style='text-align: center;'>{date_contrat}</div>", unsafe_allow_html=True)
+                    with col1:
+                        st.markdown(f"<div style='text-align: center;'>{nom}</div>", unsafe_allow_html=True)
+                    with col2:
+                        st.markdown(f"<div style='text-align: center;'>{score}</div>", unsafe_allow_html=True)
+                    with col3:
+                        st.markdown(f"<div style='text-align: center;'>{salary}</div>", unsafe_allow_html=True)
+                    with col4:
+                        st.markdown(f"<div style='text-align: center;'>{achat}</div>", unsafe_allow_html=True)
+                    with col5:
+                        st.markdown(f"<div style='text-align: center;'>{date_contrat}</div>", unsafe_allow_html=True)
+            
+            except:
+                pass
 
-    # df_final['Wage'] = df_final.apply(lambda x : salaire(x['ID']), axis = 1)
-    # df_final['Valeur'] = df_final.apply(lambda x : valeur(x['ID']), axis = 1)
 
 
     
