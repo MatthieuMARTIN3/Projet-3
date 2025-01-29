@@ -10,16 +10,153 @@ from bs4 import BeautifulSoup
 import pickle
 import requests
 import re
+from bs4 import BeautifulSoup
+import requests
+
+# BASE 
 
 df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/players_3120.csv')
+df['Best position'] = df['Best position'].apply(lambda x : x.replace('RWB', 'RB').replace('LWB', 'LB')).replace('ST', 'CF')
+df['Height'] = df['Height'].apply(lambda x : int(x[:3]))
+
+df_final = df.copy()
+
+# FONCTIONS
+
+navigator = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)'
+url_base = 'https://sofifa.com/player/'
+from bs4 import BeautifulSoup
+import requests
+
+
+
+#SALAIRE ET VALEUR
+def salaire(id):
+    url_finale_title = f'{url_base}{id}'
+    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
+    html_title2 = html_title.content
+    soup_title = BeautifulSoup(html_title2, 'html.parser')
+
+    for balise_parent2 in soup_title.find_all('div', class_='col'):
+        if 'Value' in balise_parent2.get_text().strip():
+            valeur = balise_parent2.get_text().strip()
+        if 'Wage' in balise_parent2.get_text().strip():
+            salary = balise_parent2.get_text().strip()
+
+    valeur = valeur[:-5]
+    salary = salary[:-4]
+                
+    chiffres = [valeur, salary]
+    new_chiffres = []
+
+    for element in chiffres:
+        if 'M' not in element and 'K' not in element:
+            new_chiffres.append(int(element.replace('€', '')))
+        elif 'K' in element and '.' not in element:
+            new_chiffres.append(int(element.replace('K', '000').replace('€', '')))
+        elif 'K' in element and '.'  in element:
+            new_chiffres.append(int(element.replace('K', '00').replace('€', '')))
+        elif 'M' in element and '.' not in element:
+            new_chiffres.append(int(element.replace('M', '000000').replace('€', '')))
+        elif 'M' in element and '.' in element:
+            new_chiffres.append(int(element.replace('M', '00000').replace('.', '').replace('€', '')))
+
+    valeur = int(new_chiffres[0])
+
+    salary = int(new_chiffres[1])
+
+    return salary
+
+def valeur(id):
+    url_finale_title = f'{url_base}{id}'
+    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
+    html_title2 = html_title.content
+    soup_title = BeautifulSoup(html_title2, 'html.parser')
+
+    for balise_parent2 in soup_title.find_all('div', class_='col'):
+        if 'Value' in balise_parent2.get_text().strip():
+            valeur = balise_parent2.get_text().strip()
+        if 'Wage' in balise_parent2.get_text().strip():
+            salary = balise_parent2.get_text().strip()
+
+    valeur = valeur[:-5]
+    salary = salary[:-4]
+                
+    chiffres = [valeur, salary]
+    new_chiffres = []
+
+    for element in chiffres:
+        if 'M' not in element and 'K' not in element:
+            new_chiffres.append(int(element.replace('€', '')))
+        elif 'K' in element and '.' not in element:
+            new_chiffres.append(int(element.replace('K', '000').replace('€', '')))
+        elif 'K' in element and '.'  in element:
+            new_chiffres.append(int(element.replace('K', '00').replace('€', '')))
+        elif 'M' in element and '.' not in element:
+            new_chiffres.append(int(element.replace('M', '000000').replace('€', '')))
+        elif 'M' in element and '.' in element:
+            new_chiffres.append(int(element.replace('M', '00000').replace('.', '').replace('€', '')))
+
+    valeur = int(new_chiffres[0])
+
+    salary = int(new_chiffres[1])
+
+    return valeur
+
+def name(id):
+    url_finale_title = f'{url_base}{id}'
+    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
+    html_title2 = html_title.content
+    soup_title = BeautifulSoup(html_title2, 'html.parser')
+
+    name = ''
+
+    for balise_parent in soup_title.find_all('div', class_='profile clearfix'):
+        for balise_parent2 in soup_title.find_all('h1'):
+            name += balise_parent2.get_text().strip() + ','
+
+    name = name[:-1]
+    name = name.split(',')
+    name
+
+    if name[0] == name[1]:
+        name = ''.join(name[0])
+    else:
+        name = ', '.join(name)
+
+    return name
+
+def end_contract(id):
+    url_finale_title = f'{url_base}{id}'
+    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
+    html_title2 = html_title.content
+    soup_title = BeautifulSoup(html_title2, 'html.parser')
+
+    for balise_parent2 in soup_title.find_all('p'):
+        if 'Contract valid until' in balise_parent2.get_text().strip():
+            end_contract = balise_parent2.get_text().strip()
+
+    end_contract = int(end_contract[-4:])
+    return end_contract
+
+def overall(id):
+    url_finale_title = f'{url_base}{id}'
+    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
+    html_title2 = html_title.content
+    soup_title = BeautifulSoup(html_title2, 'html.parser')
+
+    for balise_parent2 in soup_title.find_all('div', class_= 'grid'):
+            if 'Overall' in balise_parent2.get_text().strip():
+                overall = balise_parent2.get_text().strip()
+
+    overall = int(overall[:2])
+    return overall
+
 
 
 # CODE
 
-list_taille = []
-
-for n in range(len(df['Height'])):
-    list_taille.append(int("".join(re.findall(r'(\d\d\d)+cm', df['Height'].iloc[n]))))
+list_taille = df['Height'].to_list()
 
 set_taille = set(list_taille)
 
@@ -127,17 +264,44 @@ elif selection == 'Trouvez le joueur idéal':
 
     st.header("Le poste :")
     poste = st.selectbox("Quel poste recherchez-vous ?",
-    ['Gardien', 'Défenseur', 'Milieu', 'Attaquant'])
+    ['... Choisir', 'Gardien', 'Défenseur', 'Milieu', 'Attaquant'])
 
     if poste == 'Milieu':
-        st.selectbox("Quel poste au milieu de terrain ?",
-        ['Milieu droit', 'Milieu gauche', 'Milieu défensif', 'Milieu offensif'])
+        poste = st.selectbox("Quel poste au milieu de terrain ?",
+        ['Milieu droit', 'Milieu gauche', 'Milieu défensif', 'Milieu offensif', 'Milieu polyvalent'])
     elif poste == 'Défenseur':
-        st.selectbox("Quel poste en défense ?",
-        ['Latéral droit', 'Latéral gauche', 'Défenseur central'])
+        poste = st.selectbox("Quel poste en défense ?",
+        ['Arrière droit', 'Arrière gauche', 'Défenseur central'])
     elif poste == 'Attaquant':
-        st.selectbox("Quel poste en attaque ?",
+        poste = st.selectbox("Quel poste en attaque ?",
         ['Ailier droit', 'Ailier gauche', 'Attaquant central'])
+
+    if poste == 'Gardien':
+        poste = 'GK'
+    elif poste == 'Arrière droit':
+        poste = 'RB'
+    elif poste == 'Arrière gauche':
+        poste = 'LB'
+    elif poste == 'Défenseur central':
+        poste = 'CB'
+    elif poste == 'Milieu droit':
+        poste = 'RM'
+    elif poste == 'Milieu gauche':
+        poste = 'LM'
+    elif poste == 'Milieu défensif':
+        poste = 'CDM'
+    elif poste == 'Milieu offensif':
+        poste = 'CAM'
+    elif poste == 'Milieu polyvalent':
+        poste = 'CM'
+    elif poste == 'Ailier droit':
+        poste = 'RW'
+    elif poste == 'Ailier gauche':
+        poste = 'LW'
+    elif poste == 'Attaquant central':
+        poste = 'CF'
+
+    df_final = df_final[df_final['Best position'].str.contains(poste)]
 
     st.header("Parlons chiffres :")
 
@@ -150,21 +314,66 @@ elif selection == 'Trouvez le joueur idéal':
 
     critere_pied = st.toggle("Avez-vous un critère de pied fort ?", value = False)
     if critere_pied:
-        st.selectbox("Quel pied fort ?",
+        pied = st.selectbox("Quel pied fort ?",
         ['Droit', 'Gauche'])
+
+        if pied == 'Droit':
+            pied = 'Right'
+        elif pied == 'Gauche':
+            pied = 'Left'
+
+        df_final = df_final[df_final['foot'] == pied]
 
     critere_age = st.toggle("Avez-vous un critère d'âge ?", value = False)
     if critere_age:
         age = st.slider("Quelle tranche d'âge ?", int(df['Age'].min()), int(df['Age'].max()), value = (int(df['Age'].min()), int(df['Age'].max())))
         min_age = min(age)
         max_age = max(age)
+        df_final = df_final[df_final['Age'] >= min_age]
+        df_final = df_final[df_final['Age'] <= max_age]
 
     critere_taille = st.toggle("Avez-vous un critère de taille ?", value = False)
     if critere_taille:
         taille = st.slider("Quelle taille ?", min(set_taille), max(set_taille), value=(min(set_taille), max(set_taille)))
         min_taille = min(taille)
         max_taille = max(taille)
+        df_final = df_final[df_final['Height'] <= max_taille]
+        df_final = df_final[df_final['Height'] >= min_taille]
 
+    df_final = df_final.sort_values(by = 'Overall rating', ascending = False)
+
+    resultats = st.toggle("Montrer les résultats", value = False)
+    if resultats:
+        st.text(f'Nous avons {len(df_final)} résultats.')
+
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.markdown("<h5 style='text-align: center; color: white;'>Name</h5>", unsafe_allow_html=True)
+        with col2:
+            st.markdown("<h5 style='text-align: center; color: white;'>Overall rating</h5>", unsafe_allow_html=True)
+        with col3:
+            st.markdown("<h5 style='text-align: center; color: white;'>Height</h5>", unsafe_allow_html=True)
+        with col4:
+            st.markdown("<h5 style='text-align: center; color: white;'>Age</h5>", unsafe_allow_html=True)
+
+        for n in range(len(df_final)):
+            
+            with col1:
+                st.text(df_final['name'].iloc[n])
+            with col2:
+                st.text(df_final['Overall rating'].iloc[n])
+            with col3:
+                st.text(df_final['Height'].iloc[n])
+            with col4:
+                st.text(df_final['Age'].iloc[n])
+
+    # df_final['Wage'] = df_final.apply(lambda x : salaire(x['ID']), axis = 1)
+    # df_final['Valeur'] = df_final.apply(lambda x : valeur(x['ID']), axis = 1)
+
+
+    
+
+    
 
 
 
