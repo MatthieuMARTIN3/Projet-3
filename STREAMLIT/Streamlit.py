@@ -31,7 +31,44 @@ import requests
 
 
 #SALAIRE ET VALEUR
+
+# BASE 
+
+df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/players_3120.csv')
+df['Best position'] = df['Best position'].apply(lambda x : x.replace('RWB', 'RB').replace('LWB', 'LB')).replace('ST', 'CF')
+df['Height'] = df['Height'].apply(lambda x : int(x[:3]))
+
+df_final = df.copy()
+
+# FONCTIONS
+
+navigator = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)'
+url_base = 'https://sofifa.com/player/'
+from bs4 import BeautifulSoup
+import requests
+
+
+
+#SALAIRE ET VALEUR
+
+def end_contract(id):
+    id = int(id)
+    url_finale_title = f'{url_base}{id}'
+    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
+    html_title2 = html_title.content
+    soup_title = BeautifulSoup(html_title2, 'html.parser')
+
+    for balise_parent in soup_title.find_all('div', class_='grid attribute'):
+        if 'Contract valid until' in balise_parent.get_text().strip():
+                end_contract = balise_parent.get_text().strip()
+
+    end_year = max(re.findall('\d{4,}', end_contract))
+    end_year = int(end_year)
+
+    return end_year
+
 def salaire(id):
+    id = int(id)
     url_finale_title = f'{url_base}{id}'
     html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
     html_title2 = html_title.content
@@ -64,10 +101,28 @@ def salaire(id):
     valeur = int(new_chiffres[0])
 
     salary = int(new_chiffres[1])
+    salary = str(salary)
+
+    if len(salary) > 3:
+        if len(salary) > 6:
+            if len(salary) > 9:
+                if len(salary) > 12:
+                    salary = salary[:-12] + ' ' + salary[-12:-9] + ' ' + salary[-9:-6] + ' ' + salary[-6:-3] + ' ' + salary[-3:]
+                else:
+                    salary = salary[:-9] + ' ' + salary[-9:-6] + ' ' + salary[-6:-3] + ' ' + salary[-3:]
+            else:
+                salary = salary[:-6] + ' ' + salary[-6:-3] + ' ' + salary[-3:]
+        else:
+            salary = salary[:-3] + ' ' + salary[-3:]
+    else:
+        salary = salary
+
+    salary = salary + ' €'
 
     return salary
 
 def valeur(id):
+    id = int(id)
     url_finale_title = f'{url_base}{id}'
     html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
     html_title2 = html_title.content
@@ -101,9 +156,28 @@ def valeur(id):
 
     salary = int(new_chiffres[1])
 
+    valeur = str(valeur)
+    
+    if len(valeur) > 3:
+        if len(valeur) > 6:
+            if len(valeur) > 9:
+                if len(valeur) > 12:
+                    valeur = valeur[:-12] + ' ' + valeur[-12:-9] + ' ' + valeur[-9:-6] + ' ' + valeur[-6:-3] + ' ' + valeur[-3:]
+                else:
+                    valeur = valeur[:-9] + ' ' + valeur[-9:-6] + ' ' + valeur[-6:-3] + ' ' + valeur[-3:]
+            else:
+                valeur = valeur[:-6] + ' ' + valeur[-6:-3] + ' ' + valeur[-3:]
+        else:
+            valeur = valeur[:-3] + ' ' + valeur[-3:]
+    else:
+        valeur = valeur
+
+    valeur = valeur + ' €'
+
     return valeur
 
 def name(id):
+    id = int(id)
     url_finale_title = f'{url_base}{id}'
     html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
     html_title2 = html_title.content
@@ -117,29 +191,12 @@ def name(id):
 
     name = name[:-1]
     name = name.split(',')
-    name
-
-    if name[0] == name[1]:
-        name = ''.join(name[0])
-    else:
-        name = ', '.join(name)
+    name = name[0]
 
     return name
 
-def end_contract(id):
-    url_finale_title = f'{url_base}{id}'
-    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
-    html_title2 = html_title.content
-    soup_title = BeautifulSoup(html_title2, 'html.parser')
-
-    for balise_parent2 in soup_title.find_all('p'):
-        if 'Contract valid until' in balise_parent2.get_text().strip():
-            end_contract = balise_parent2.get_text().strip()
-
-    end_contract = int(end_contract[-4:])
-    return end_contract
-
 def overall(id):
+    id = int(id)
     url_finale_title = f'{url_base}{id}'
     html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
     html_title2 = html_title.content
@@ -151,7 +208,6 @@ def overall(id):
 
     overall = int(overall[:2])
     return overall
-
 
 
 # CODE
@@ -340,32 +396,48 @@ elif selection == 'Trouvez le joueur idéal':
         df_final = df_final[df_final['Height'] <= max_taille]
         df_final = df_final[df_final['Height'] >= min_taille]
 
+    
     df_final = df_final.sort_values(by = 'Overall rating', ascending = False)
-
+    
     resultats = st.toggle("Montrer les résultats", value = False)
     if resultats:
+
         st.text(f'Nous avons {len(df_final)} résultats.')
 
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
-            st.markdown("<h5 style='text-align: center; color: white;'>Name</h5>", unsafe_allow_html=True)
+            st.markdown("<h6 style='text-align: center; color: white;'>Name</h6>", unsafe_allow_html=True)
         with col2:
-            st.markdown("<h5 style='text-align: center; color: white;'>Overall rating</h5>", unsafe_allow_html=True)
+            st.markdown("<h6 style='text-align: center; color: white;'>Overall rating</h6>", unsafe_allow_html=True)
         with col3:
-            st.markdown("<h5 style='text-align: center; color: white;'>Height</h5>", unsafe_allow_html=True)
+            st.markdown("<h6 style='text-align: center; color: white;'>Salaire</h6>", unsafe_allow_html=True)
         with col4:
-            st.markdown("<h5 style='text-align: center; color: white;'>Age</h5>", unsafe_allow_html=True)
+            st.markdown("<h6 style='text-align: center; color: white;'>Valeur</h6>", unsafe_allow_html=True)
+        with col5:
+            st.markdown("<h6 style='text-align: center; color: white;'>Fin de contrat</h6>", unsafe_allow_html=True)
 
         for n in range(len(df_final)):
-            
-            with col1:
-                st.text(df_final['name'].iloc[n])
-            with col2:
-                st.text(df_final['Overall rating'].iloc[n])
-            with col3:
-                st.text(df_final['Height'].iloc[n])
-            with col4:
-                st.text(df_final['Age'].iloc[n])
+
+            id = df_final['ID'].iloc[n]
+            date_contrat = end_contract(id)
+
+            if  date_contrat >= 2024:
+                
+                nom = name(id)
+                score = overall(id)
+                salary = salaire(id)
+                achat = valeur(id)
+
+                with col1:
+                    st.markdown(f"<div style='text-align: center;'>{nom}</div>", unsafe_allow_html=True)
+                with col2:
+                    st.markdown(f"<div style='text-align: center;'>{score}</div>", unsafe_allow_html=True)
+                with col3:
+                    st.markdown(f"<div style='text-align: center;'>{salary}</div>", unsafe_allow_html=True)
+                with col4:
+                    st.markdown(f"<div style='text-align: center;'>{achat}</div>", unsafe_allow_html=True)
+                with col5:
+                    st.markdown(f"<div style='text-align: center;'>{date_contrat}</div>", unsafe_allow_html=True)
 
     # df_final['Wage'] = df_final.apply(lambda x : salaire(x['ID']), axis = 1)
     # df_final['Valeur'] = df_final.apply(lambda x : valeur(x['ID']), axis = 1)
