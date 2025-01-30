@@ -237,6 +237,9 @@ if selection == 'Accueil':
         with col3:
             st.markdown("<h2 style='text-align: center; color: white;'>Matthieu</h2>", unsafe_allow_html=True)
             st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 150)
+            url = "https://www.linkedin.com/in/matthieu-martin-8063a417a/"
+            st.write("check out this [link](%s)" % url)
+            st.markdown("[LinkedIn](%s)" %url)
 
         with col4:
             st.markdown("<h2 style='text-align: center; color: white;'>Loïc</h2>", unsafe_allow_html=True)
