@@ -12,10 +12,34 @@ import requests
 import re
 from bs4 import BeautifulSoup
 import requests
+import plotly.express as px
+import matplotlib.pyplot as plt
 
 # BASE 
 
 df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/players_3120.csv')
+
+df = df.sample(25)
+
+colonnes = list(df.columns)[16:-9]
+
+colonnes.remove('Total skill')
+colonnes.remove('Total movement')
+colonnes.remove('Total power')
+colonnes.remove('Total mentality')
+colonnes.remove('Total defending')
+colonnes.remove('Total goalkeeping')
+
+# for element in colonnes:
+#     df[element]= df[element].apply(lambda x : float(x))
+
+attacking = colonnes[0:5]
+skill = colonnes[5:10]
+movement = colonnes[10:15]
+power = colonnes[15:20]
+mentality = colonnes[20:26]
+defending = colonnes[26:29]
+goalkeeping = colonnes[29:34]
 
 # FONCTIONS
 
@@ -44,6 +68,25 @@ df['Best position'] = df['Best position'].apply(lambda x : x.replace('RWB', 'RB'
 df['Height'] = df['Height'].apply(lambda x : int(x[:3]))
 
 df_final = df.copy()
+def calcul(value):
+
+    if value == []:
+        value = value
+    else:
+        if type(value) == list:
+            value = ''.join(value)
+        
+        if ' ' in value:
+            value = value.replace(' ', '')
+            
+        if '+' in value:
+            a, b = value.split('+')
+            value = int(a) + int(b)
+        elif '-' in value:
+            a, b = value.split('-')
+            value = int(a) - int(b)
+    
+    return value
 
 # WEB SCRAPING
 
@@ -236,13 +279,19 @@ if selection == 'Accueil':
 
         with col3:
             st.markdown("<h2 style='text-align: center; color: white;'>Matthieu</h2>", unsafe_allow_html=True)
-            st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 150)
             url = "https://www.linkedin.com/in/matthieu-martin-8063a417a/"
-            st.write("check out this [link](%s)" % url)
             st.markdown("[LinkedIn](%s)" %url)
+            url = "https://github.com/MatthieuMARTIN3"
+            st.markdown("[GitHub](%s)" %url)           
+            st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 150)
+
 
         with col4:
             st.markdown("<h2 style='text-align: center; color: white;'>Loïc</h2>", unsafe_allow_html=True)
+            url = "https://www.linkedin.com/in/loic-fotsing-637a221a8/"
+            st.markdown("[LinkedIn](%s)" %url)
+            url = "https://github.com/je-suis-lmfao"
+            st.markdown("[GitHub](%s)" %url)       
             st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/377.webp", width = 150)
 
     with col2:
@@ -250,10 +299,18 @@ if selection == 'Accueil':
 
         with col5:
             st.markdown("<h2 style='text-align: center; color: white;'>Kilian</h2>", unsafe_allow_html=True)
+            url = "https://www.linkedin.com/in/kiliancadiou/"
+            st.markdown("[LinkedIn](%s)" %url)
+            url = "https://github.com/KilianCadiou"
+            st.markdown("[GitHub](%s)" %url)       
             st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/POSE_-16.png", width = 150)
 
         with col6:
             st.markdown("<h2 style='text-align: center; color: white;'>Malo</h2>", unsafe_allow_html=True)
+            url = "https://www.linkedin.com/in/malo-le-pors-5373a8273/"
+            st.markdown("[LinkedIn](%s)" %url)
+            url = "https://github.com/MaloBang"
+            st.markdown("[GitHub](%s)" %url)      
             st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/Sans titre.png", width = 150)
 
 elif selection == 'Trouvez un joueur':
@@ -289,6 +346,14 @@ elif selection == 'Trouvez le joueur idéal':
 
 
 # Trouver un joueur selon certaines caractéristiques
+
+    for element in colonnes:
+        for n in range(len(df_final)):
+            if "+" in df[element].iloc[n] or "-" in df[element].iloc[n]:
+                df[element].iloc[n] = calcul(df[element].iloc[n])
+                df[element].iloc[n] = float(df[element].iloc[n])
+            else:
+                df[element].iloc[n]= float(df[element].iloc[n])
 
     # col1, col2, col3 = st.columns(3)
 
@@ -420,7 +485,13 @@ elif selection == 'Trouvez le joueur idéal':
         with col5:
             st.markdown("<h6 style='text-align: center; color: white;'>Fin de contrat</h6>", unsafe_allow_html=True)
 
-        for n in range(len(df_final)):
+
+        if len(df_final) >3:
+            krange = 3
+        else:
+            krange = len(df_final)
+
+        for n in range(krange):
 
             id = df_final['ID'].iloc[n]
             date_contrat = end_contract(id)
@@ -443,9 +514,12 @@ elif selection == 'Trouvez le joueur idéal':
                         st.markdown(f"<div style='text-align: center;'>{achat}</div>", unsafe_allow_html=True)
                     with col5:
                         st.markdown(f"<div style='text-align: center;'>{date_contrat}</div>", unsafe_allow_html=True)
-            
+                    
             except:
                 pass
+            
+
+
 
 
 
