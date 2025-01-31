@@ -17,9 +17,15 @@ import matplotlib.pyplot as plt
 
 # BASE 
 
-df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/players_3120.csv')
+df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset_a_jour.csv')
+df = df[df['name'].isna() == False]
+df['name'] = df['name'].astype(str)
+df['name'] = df['name'].apply(lambda x : x.split(',') if ',' in x else x)
+df['Team & Contract'] = df['Team & Contract'].apply(lambda x : int(x) if x != 'Unknown' else 0)
+df = df[(df['Team & Contract'] == 0) | (df['Team & Contract'] <= 2024)]
 
-df = df.sample(25)
+
+df = df[~(df['name'].isna())]
 
 colonnes = list(df.columns)[16:-9]
 
@@ -30,8 +36,9 @@ colonnes.remove('Total mentality')
 colonnes.remove('Total defending')
 colonnes.remove('Total goalkeeping')
 
-# for element in colonnes:
-#     df[element]= df[element].apply(lambda x : float(x))
+for element in colonnes:
+    df[element] = df[element].fillna(0)
+    df[element] = df[element].astype(float)
 
 attacking = colonnes[0:5]
 skill = colonnes[5:10]
@@ -48,26 +55,6 @@ url_base = 'https://sofifa.com/player/'
 from bs4 import BeautifulSoup
 import requests
 
-def revenue(test):
-    if 'M' not in test and 'K' not in test:
-        resultat = int(test.replace('€', ''))
-    elif 'K' in test and '.' not in test:
-        resultat = int(test.replace('K', '000').replace('€', ''))
-    elif 'K' in test and '.'  in test:
-        resultat = int(test.replace('K', '00').replace('€', ''))
-    elif 'M' in test and '.' not in test:
-        resultat = int(test.replace('M', '000000').replace('€', ''))
-    elif 'M' in test and '.' in test:
-        resultat = int(test.replace('M', '00000').replace('.', '').replace('€', ''))
-
-    return resultat
-
-df['Revenue'] = df['Wage'].apply(revenue)
-df['Valeur'] = df['Value'].apply(revenue)
-df['Best position'] = df['Best position'].apply(lambda x : x.replace('RWB', 'RB').replace('LWB', 'LB')).replace('ST', 'CF')
-df['Height'] = df['Height'].apply(lambda x : int(x[:3]))
-
-df_final = df.copy()
 def calcul(value):
 
     if value == []:
@@ -81,70 +68,17 @@ def calcul(value):
             
         if '+' in value:
             a, b = value.split('+')
-            value = int(a) + int(b)
+            return int(a) + int(b)
         elif '-' in value:
             a, b = value.split('-')
-            value = int(a) - int(b)
+            return int(a) - int(b)
+        
+        value = int(value)
     
     return value
 
-# WEB SCRAPING
-
-def end_contract(id):
-    id = int(id)
-    url_finale_title = f'{url_base}{id}'
-    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
-    html_title2 = html_title.content
-    soup_title = BeautifulSoup(html_title2, 'html.parser')
-
-    for balise_parent in soup_title.find_all('div', class_='grid attribute'):
-        if 'Contract valid until' in balise_parent.get_text().strip():
-                end_contract = balise_parent.get_text().strip()
-
-    try:
-        end_year = max(re.findall('\d{4,}', end_contract))
-        end_year = int(end_year)
-    except:
-        end_year = 'Unknown'
-    
-    return end_year
-
-def salaire(id):
-    id = int(id)
-    url_finale_title = f'{url_base}{id}'
-    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
-    html_title2 = html_title.content
-    soup_title = BeautifulSoup(html_title2, 'html.parser')
-
-    for balise_parent2 in soup_title.find_all('div', class_='col'):
-        if 'Value' in balise_parent2.get_text().strip():
-            valeur = balise_parent2.get_text().strip()
-        if 'Wage' in balise_parent2.get_text().strip():
-            salary = balise_parent2.get_text().strip()
-
-    valeur = valeur[:-5]
-    salary = salary[:-4]
-                
-    chiffres = [valeur, salary]
-    new_chiffres = []
-
-    for element in chiffres:
-        if 'M' not in element and 'K' not in element:
-            new_chiffres.append(int(element.replace('€', '')))
-        elif 'K' in element and '.' not in element:
-            new_chiffres.append(int(element.replace('K', '000').replace('€', '')))
-        elif 'K' in element and '.'  in element:
-            new_chiffres.append(int(element.replace('K', '00').replace('€', '')))
-        elif 'M' in element and '.' not in element:
-            new_chiffres.append(int(element.replace('M', '000000').replace('€', '')))
-        elif 'M' in element and '.' in element:
-            new_chiffres.append(int(element.replace('M', '00000').replace('.', '').replace('€', '')))
-
-    valeur = int(new_chiffres[0])
-
-    salary = int(new_chiffres[1])
+def montant(salary):
     salary = str(salary)
-
     if len(salary) > 3:
         if len(salary) > 6:
             if len(salary) > 9:
@@ -163,101 +97,10 @@ def salaire(id):
 
     return salary
 
-def valeur(id):
-    id = int(id)
-    url_finale_title = f'{url_base}{id}'
-    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
-    html_title2 = html_title.content
-    soup_title = BeautifulSoup(html_title2, 'html.parser')
-
-    for balise_parent2 in soup_title.find_all('div', class_='col'):
-        if 'Value' in balise_parent2.get_text().strip():
-            valeur = balise_parent2.get_text().strip()
-        if 'Wage' in balise_parent2.get_text().strip():
-            salary = balise_parent2.get_text().strip()
-
-    valeur = valeur[:-5]
-    salary = salary[:-4]
-                
-    chiffres = [valeur, salary]
-    new_chiffres = []
-
-    for element in chiffres:
-        if 'M' not in element and 'K' not in element:
-            new_chiffres.append(int(element.replace('€', '')))
-        elif 'K' in element and '.' not in element:
-            new_chiffres.append(int(element.replace('K', '000').replace('€', '')))
-        elif 'K' in element and '.'  in element:
-            new_chiffres.append(int(element.replace('K', '00').replace('€', '')))
-        elif 'M' in element and '.' not in element:
-            new_chiffres.append(int(element.replace('M', '000000').replace('€', '')))
-        elif 'M' in element and '.' in element:
-            new_chiffres.append(int(element.replace('M', '00000').replace('.', '').replace('€', '')))
-
-    valeur = int(new_chiffres[0])
-
-    salary = int(new_chiffres[1])
-
-    valeur = str(valeur)
-    
-    if len(valeur) > 3:
-        if len(valeur) > 6:
-            if len(valeur) > 9:
-                if len(valeur) > 12:
-                    valeur = valeur[:-12] + ' ' + valeur[-12:-9] + ' ' + valeur[-9:-6] + ' ' + valeur[-6:-3] + ' ' + valeur[-3:]
-                else:
-                    valeur = valeur[:-9] + ' ' + valeur[-9:-6] + ' ' + valeur[-6:-3] + ' ' + valeur[-3:]
-            else:
-                valeur = valeur[:-6] + ' ' + valeur[-6:-3] + ' ' + valeur[-3:]
-        else:
-            valeur = valeur[:-3] + ' ' + valeur[-3:]
-    else:
-        valeur = valeur
-
-    valeur = valeur + ' €'
-
-    return valeur
-
-def name(id):
-    id = int(id)
-    url_finale_title = f'{url_base}{id}'
-    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
-    html_title2 = html_title.content
-    soup_title = BeautifulSoup(html_title2, 'html.parser')
-
-    name = ''
-
-    for balise_parent in soup_title.find_all('div', class_='profile clearfix'):
-        for balise_parent2 in soup_title.find_all('h1'):
-            name += balise_parent2.get_text().strip() + ','
-
-    name = name[:-1]
-    name = name.split(',')
-    name = name[0]
-
-    return name
-
-def overall(id):
-    id = int(id)
-    url_finale_title = f'{url_base}{id}'
-    html_title = requests.get(url_finale_title, headers={'User-Agent': navigator})
-    html_title2 = html_title.content
-    soup_title = BeautifulSoup(html_title2, 'html.parser')
-
-    for balise_parent2 in soup_title.find_all('div', class_= 'grid'):
-            if 'Overall' in balise_parent2.get_text().strip():
-                overall = balise_parent2.get_text().strip()
-
-    try:
-        overall = int(overall[:2])
-    except:
-        overall = 'Unknown'
-
-    return overall
-
 
 # STREAMLIT
 
+df_final = df.copy()
 
 with st.sidebar:
     selection = option_menu(
@@ -347,13 +190,13 @@ elif selection == 'Trouvez le joueur idéal':
 
 # Trouver un joueur selon certaines caractéristiques
 
-    for element in colonnes:
-        for n in range(len(df_final)):
-            if "+" in df[element].iloc[n] or "-" in df[element].iloc[n]:
-                df[element].iloc[n] = calcul(df[element].iloc[n])
-                df[element].iloc[n] = float(df[element].iloc[n])
-            else:
-                df[element].iloc[n]= float(df[element].iloc[n])
+    # for element in colonnes:
+    #     for n in range(len(df_final)):
+    #         if "+" in df_final[element].iloc[n] or "-" in df_final[element].iloc[n]:
+    #             df_final[element].iloc[n] = calcul(df_final[element].iloc[n])
+    #             df_final[element].iloc[n] = float(df_final[element].iloc[n])
+    #         else:
+    #             df_final[element].iloc[n]= float(df_final[element].iloc[n])
 
     # col1, col2, col3 = st.columns(3)
 
@@ -398,6 +241,19 @@ elif selection == 'Trouvez le joueur idéal':
 
     df_final = df_final[df_final['Best position'].str.contains(poste)]
 
+    attaque = ['RW', 'LW', 'CF']
+    defense = ['RM', 'LM', 'CDM', 'CAM', 'CM']
+    milieu = ['RB', 'LB', 'CB']
+    gardien = ['GK']
+
+    if poste in attaque:
+        colonnes_spé = attacking
+    elif poste in defense:
+        colonnes_spé = defending
+    elif poste in milieu:
+        colonnes_spé = movement
+    elif poste in gardien:
+        colonnes_spé = goalkeeping
 
     st.header("Des préférences ?")
 
@@ -407,11 +263,11 @@ elif selection == 'Trouvez le joueur idéal':
         ['Droit', 'Gauche'])
 
         if pied == 'Droit':
-            pied = 'Right'
+            pied = 1
         elif pied == 'Gauche':
-            pied = 'Left'
+            pied = 0
 
-        df_final = df_final[df_final['foot'] == pied]
+        df_final = df_final[df_final['Pied droit'] == pied]
 
     critere_age = st.toggle("Avez-vous un critère d'âge ?", value = False)
     if critere_age:
@@ -434,38 +290,38 @@ elif selection == 'Trouvez le joueur idéal':
     
     critere_budget = st.toggle("Avez-vous un critère de coût de transfert ?", value = False)
     if critere_budget:
-        # budget_transfert = st.slider("Quelle valeur ?", min(df_final['Valeur']), max(df_final['Valeur']), value=(min(df_final['Valeur']), max(df_final['Valeur'])))
+        # budget_transfert = st.slider("Quelle valeur ?", min(df_final['Value']), max(df_final['Value']), value=(min(df_final['Value']), max(df_final['Value'])))
         # min_budget = min(budget_transfert)
         # max_budget = max(budget_transfert)
 
         col1, col2 = st.columns(2)
         with col2:
-            max_budget = st.text_input("Quel est le coût de transfert maximum ?", max(df_final['Valeur']), autocomplete= str(max(df_final['Valeur'])))
+            max_budget = st.text_input("Quel est le coût de transfert maximum ?", max(df_final['Value']), autocomplete= str(max(df_final['Value'])))
             
         with col1:
-            min_budget = st.text_input("Quel est le coût de transfert minimum ?", min(df_final['Valeur']), autocomplete= str(max(df_final['Valeur'])))
+            min_budget = st.text_input("Quel est le coût de transfert minimum ?", min(df_final['Value']), autocomplete= str(max(df_final['Value'])))
         
         max_budget = int(max_budget) 
         min_budget = int(min_budget)
-        df_final = df_final[df_final['Valeur'] <= max_budget]
-        df_final = df_final[df_final['Valeur'] >= min_budget]
+        df_final = df_final[df_final['Value'] <= max_budget]
+        df_final = df_final[df_final['Value'] >= min_budget]
 
     critere_salaire = st.toggle("Avez-vous un critère de salaire ?", value = False)
     if critere_salaire:
-        # budget_salaire = st.slider("Quelle salaire ?", min(df_final['Revenue']), max(df_final['Revenue']), value=(min(df_final['Revenue']), max(df_final['Revenue'])))
+        # budget_salaire = st.slider("Quelle salaire ?", min(df_final['Wage']), max(df_final['Wage']), value=(min(df_final['Wage']), max(df_final['Wage'])))
         # min_salaire = min(budget_salaire)
         # max_salaire = max(budget_salaire)
 
         col1, col2 = st.columns(2)
         with col2:
-            max_salaire = st.text_input("Quel est le salaire maximum ?", max(df_final['Revenue']), autocomplete= str(max(df_final['Revenue'])))
+            max_salaire = st.text_input("Quel est le salaire maximum ?", max(df_final['Wage']), autocomplete= str(max(df_final['Wage'])))
         with col1:
-            min_salaire = st.text_input("Quel est le salaire minimum ?", min(df_final['Revenue']), autocomplete= str(max(df_final['Revenue'])))
+            min_salaire = st.text_input("Quel est le salaire minimum ?", min(df_final['Wage']), autocomplete= str(max(df_final['Wage'])))
             
         max_salaire = int(max_salaire)
         min_salaire = int(min_salaire)
-        df_final = df_final[df_final['Revenue'] <= max_salaire]
-        df_final = df_final[df_final['Revenue'] >= min_salaire]
+        df_final = df_final[df_final['Wage'] <= max_salaire]
+        df_final = df_final[df_final['Wage'] >= min_salaire]
 
     df_final = df_final.sort_values(by = 'Overall rating', ascending = False)
 
@@ -485,43 +341,76 @@ elif selection == 'Trouvez le joueur idéal':
         with col5:
             st.markdown("<h6 style='text-align: center; color: white;'>Fin de contrat</h6>", unsafe_allow_html=True)
 
+        for n in range(len(df_final)):
 
-        if len(df_final) >3:
-            krange = 3
-        else:
-            krange = len(df_final)
+            date_contrat = df_final['Team & Contract'].iloc[n]
+            nom = df_final['name'].iloc[n][0]
+            score = df_final['Overall rating'].iloc[n]
+            salary = df_final['Wage'].iloc[n]
+            achat = df_final['Value'].iloc[n]
 
-        for n in range(krange):
+            col6, col7, col8, col9, col10 = st.columns(5)
 
-            id = df_final['ID'].iloc[n]
-            date_contrat = end_contract(id)
+            with col6:
+                st.markdown(f"<div style='text-align: center;'>{nom}</div>", unsafe_allow_html=True)
+            with col7:
+                st.markdown(f"<div style='text-align: center;'>{score}</div>", unsafe_allow_html=True)
+            with col8:
+                st.markdown(f"<div style='text-align: center;'>{montant(salary)}</div>", unsafe_allow_html=True)
+            with col9:
+                st.markdown(f"<div style='text-align: center;'>{montant(achat)}</div>", unsafe_allow_html=True)
+            with col10:
+                st.markdown(f"<div style='text-align: center;'>{date_contrat}</div>", unsafe_allow_html=True)
 
-            try:
-                if date_contrat >= 2024 or date_contrat == 'Unknown':
-                
-                    nom = name(id)
-                    score = overall(id)
-                    salary = salaire(id)
-                    achat = valeur(id)
-
-                    with col1:
-                        st.markdown(f"<div style='text-align: center;'>{nom}</div>", unsafe_allow_html=True)
-                    with col2:
-                        st.markdown(f"<div style='text-align: center;'>{score}</div>", unsafe_allow_html=True)
-                    with col3:
-                        st.markdown(f"<div style='text-align: center;'>{salary}</div>", unsafe_allow_html=True)
-                    with col4:
-                        st.markdown(f"<div style='text-align: center;'>{achat}</div>", unsafe_allow_html=True)
-                    with col5:
-                        st.markdown(f"<div style='text-align: center;'>{date_contrat}</div>", unsafe_allow_html=True)
-                    
-            except:
-                pass
             
+            col11, col12 = st.columns(2)
 
+            with col11:
+                dico_colonnes = {}
+                dico_colonnes = {'Attacking' : float(df_final[attacking].iloc[n].mean()),
+                        'Skill' : float(df_final[skill].iloc[n].mean()),
+                        'Movement' : float(df_final[movement].iloc[n].mean()),
+                        'Power' : float(df_final[power].iloc[n].mean()),
+                        'Mentality' : float(df_final[mentality].iloc[n].mean()),
+                        'Defending': float(df_final[defending].iloc[n].mean()),
+                        'Goalkeeping' : float(df_final[goalkeeping].iloc[n].mean())}
 
+                data = pd.DataFrame.from_dict(dico_colonnes, orient = 'index').reset_index()
 
+                data = data.rename({'index' : 'theta',
+                                    0 : 'r'},
+                                axis = 1)
 
+                if int(data['r'].sum()) > 0:
+
+                    st.markdown(f"<div style='text-align: center;'>Statistiques Globales</div>", unsafe_allow_html=True)
+                    fig = px.line_polar(data, r = 'r', theta= 'theta', line_close=True)
+                    fig.update_layout(polar=dict(radialaxis=dict(range=[0, 100])))
+
+                    st.plotly_chart(fig)
+
+            with col12:
+                  
+                df_final_stats = df_final[colonnes_spé]
+                dico_colonnes2 = {}
+
+                for element in colonnes_spé:
+                    dico_colonnes2.update({element : df_final_stats[element].iloc[n]})
+
+                data = pd.DataFrame.from_dict(dico_colonnes2, orient = 'index').reset_index()
+
+                data = data.rename({'index' : 'theta',
+                                    0 : 'r'},
+                                axis = 1)
+                if int(data['r'].sum()) > 0:
+                    st.markdown(f"<div style='text-align: center;'>Statistiques Spécifiques</div>", unsafe_allow_html=True)
+                    
+                    fig = px.line_polar(data, r = 'r', theta= 'theta', line_close=True)
+                    fig.update_layout(polar=dict(radialaxis=dict(range=[0, 100])))
+
+                    st.plotly_chart(fig)
+
+                
 
     
 
