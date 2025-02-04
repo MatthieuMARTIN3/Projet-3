@@ -25,7 +25,8 @@ df['Team & Contract'] = df['Team & Contract'].apply(lambda x : int(x) if x != 'U
 df = df[(df['Team & Contract'] == 0) | (df['Team & Contract'] <= 2024)]
 
 
-df = df[~(df['name'].isna())]
+df = df[~(df['name'].isna() == True)]
+df = df[~(df['name'] == '')]
 
 colonnes = list(df.columns)[16:-9]
 
@@ -111,7 +112,7 @@ with st.sidebar:
 if selection == 'Accueil':
 
     st.header("Va te faire foot !")
-    st.html("<p>Bienvenue sur notre service de recommendations de joueurs de football.</p>")
+    st.html("<p>Bienvenue sur notre service de recommandations de joueurs de football.</p>")
 
     st.header("Notre équipe :")
 
@@ -158,6 +159,12 @@ if selection == 'Accueil':
 
 elif selection == 'Trouvez un joueur':
 
+    df_recherche = df.copy()
+
+    
+    df_recherche['name'] = df_recherche['name'].apply(lambda x : ",".join(x) if type(x) == list else x)
+    df_recherche['name'] = df_recherche['name'].apply(lambda x : x.lower())
+
     # Sélectionner un joueur similaire
 
     st.header("👇 Trouvez un joueur similaire à ... :")
@@ -167,22 +174,20 @@ elif selection == 'Trouvez un joueur':
     if choix_joueur:
 
         # On vérifie si notre film existe
-        df_recherche = df.copy()
-        df_recherche['name'] = df_recherche['name'].apply(lambda x : x.lower())
+        
         recherche = choix_joueur
         recherche2 = recherche.lower().split(" ")
 
         for element in recherche2:
             df_recherche2 = df_recherche[df_recherche['name'].str.contains(element)]
             df_recherche = df_recherche2
+        
+        if len(df_recherche) != 0:
+            st.dataframe(df_recherche)
+        else:
+            st.markdown("Êtes-vous sûr de l'orthographe ?")
+            st.markdown("Ou alors ce joueur n'est pas dans nos bases.")
 
-
-        resultat = df[df['name'].str.contains(choix_joueur)]
-        selected_film = st.selectbox(
-            "",
-            df_recherche['name'],
-            index=None,
-            placeholder="Select")
 
 elif selection == 'Trouvez le joueur idéal':
 
@@ -242,8 +247,8 @@ elif selection == 'Trouvez le joueur idéal':
     df_final = df_final[df_final['Best position'].str.contains(poste)]
 
     attaque = ['RW', 'LW', 'CF']
-    defense = ['RM', 'LM', 'CDM', 'CAM', 'CM']
-    milieu = ['RB', 'LB', 'CB']
+    milieu = ['RM', 'LM', 'CDM', 'CAM', 'CM']
+    defense = ['RB', 'LB', 'CB']
     gardien = ['GK']
 
     if poste in attaque:
@@ -383,7 +388,7 @@ elif selection == 'Trouvez le joueur idéal':
 
                 if int(data['r'].sum()) > 0:
 
-                    st.markdown(f"<div style='text-align: center;'>Statistiques Globales</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='text-align: center;'>Statistiques Globale : {int(round(data['r'].mean(), 0))}</div>", unsafe_allow_html=True)
                     fig = px.line_polar(data, r = 'r', theta= 'theta', line_close=True)
                     fig.update_layout(polar=dict(radialaxis=dict(range=[0, 100])))
 
@@ -403,7 +408,7 @@ elif selection == 'Trouvez le joueur idéal':
                                     0 : 'r'},
                                 axis = 1)
                 if int(data['r'].sum()) > 0:
-                    st.markdown(f"<div style='text-align: center;'>Statistiques Spécifiques</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='text-align: center;'>Statistiques Spécifiques : {int(round(data['r'].mean(), 0))}</div>", unsafe_allow_html=True)
                     
                     fig = px.line_polar(data, r = 'r', theta= 'theta', line_close=True)
                     fig.update_layout(polar=dict(radialaxis=dict(range=[0, 100])))
