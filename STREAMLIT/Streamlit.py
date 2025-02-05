@@ -14,10 +14,27 @@ from bs4 import BeautifulSoup
 import requests
 import plotly.express as px
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+import pandas as pd
+import numpy as np
+# modèle
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 # BASE 
 
 df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset_a_jour.csv')
+df = df.drop_duplicates(subset=['ID'])
 df = df[df['name'].isna() == False]
 df['name'] = df['name'].astype(str)
 df['name'] = df['name'].apply(lambda x : x.split(',') if ',' in x else x)
@@ -98,6 +115,181 @@ def montant(salary):
 
     return salary
 
+# KNN
+
+# Appliquer des poids 
+colonnes_fixes = ['Age',  
+                      'Overall rating',  
+                      'Potential',  
+                      'Total attacking', 
+                      'Heading accuracy', 
+                      'Total skill',
+                      'Curve',  
+                      'Total movement', 
+                      'Acceleration', 
+                      'Balance',
+                      'Total power',
+                      'Total mentality',
+                      'Interceptions',
+                      'Vision',  
+                      'Total defending',
+                      'Total goalkeeping',
+                      'Total stats',
+                      'Base stats',
+                      'International reputation',
+                      'Pace / Diving',
+                      'Shooting / Handling',
+                      'Passing / Kicking',
+                      'Dribbling / Reflexes',
+                      'Defending / Pace',
+                      'Height',
+                      'Weight',
+                      'Value',
+                      'Wage',
+                      'Release clause',
+                      'Crossing',
+                      'Short passing',
+                      'Volleys',
+                      'Dribbling',
+                      'FK Accuracy',
+                      'Long passing',
+                      'Ball control',
+                      'Sprint speed',
+                      'Agility',
+                      'Reactions', 
+                      'Shot power',
+                      'Jumping',
+                      'Stamina',
+                      'Strength',
+                      'Long shots',
+                      'Aggression',
+                      'Att. Position',
+                      'Penalties',
+                      'Composure',
+                      'Defensive awareness',
+                      'Standing tackle',
+                      'Sliding tackle',
+                      'GK Diving',
+                      'GK Handling',
+                      'GK Kicking',
+                      'GK Positioning',
+                      'GK Reflexes',
+                      'Best overall',
+                      'Growth',
+                      'Pied droit']
+
+poids_fixes_dict = {
+        'Age': 1,  
+        'Overall rating': 1,  
+        'Potential': 1,  
+        'Total attacking': 0, 
+        'Heading accuracy': 1, 
+        'Total skill': 0,
+        'Curve': 1,  
+        'Total movement': 0, 
+        'Acceleration': 1, 
+        'Balance': 1,
+        'Total power': 0,
+        'Total mentality': 0,
+        'Interceptions': 1,
+        'Vision': 1,  
+        'Total defending': 0,
+        'Total goalkeeping': 0,
+        'Total stats': 0,
+        'Base stats': 1,
+        'International reputation': 1,
+        'Pace / Diving': 1,
+        'Shooting / Handling': 1,
+        'Passing / Kicking': 1,
+        'Dribbling / Reflexes': 1,
+        'Defending / Pace': 1,
+        'Height': 1,
+        'Weight': 1,
+        'Value': 1,
+        'Wage': 1,
+        'Release clause': 1,
+        'Crossing': 1,
+        'Short passing': 1,
+        'Volleys': 1,
+        'Dribbling': 1,
+        'FK Accuracy': 1,
+        'Long passing': 1,
+        'Ball control': 1,
+        'Sprint speed': 1,
+        'Agility': 1,
+        'Reactions': 1, 
+        'Shot power': 1,
+        'Jumping': 1,
+        'Stamina': 1,
+        'Strength': 1,
+        'Long shots': 1,
+        'Aggression': 1,
+        'Att. Position': 1,
+        'Penalties': 1,
+        'Composure': 1,
+        'Defensive awareness': 1,
+        'Standing tackle': 1,
+        'Sliding tackle': 1,
+        'GK Diving': 1,
+        'GK Handling': 1,
+        'GK Kicking': 1,
+        'GK Positioning': 1,
+        'GK Reflexes': 1,
+        'Best overall': 1,
+        'Growth': 1,
+        'Pied droit': 1
+        }
+
+
+def poids_numerique(X, colonnes_fixes, poids_fixes_dict):
+    # Appliquer les poids aux colonnes numériques existantes
+    for col in colonnes_fixes:
+        if col in X.columns:
+            X[col] *= poids_fixes_dict[col]
+    
+    return X
+
+
+# FONCTION 1
+def encodage_X(X, type, colonnes_fixes, poids_fixes_dict):
+    from sklearn.preprocessing import StandardScaler, MinMaxScaler
+
+    index = X.index
+    X_num = X.select_dtypes('number')
+    X_str = X.select_dtypes('object')
+
+    if type == 'standard':
+        SN = StandardScaler()
+    else:
+        SN = MinMaxScaler()
+    X_num_scaled = pd.DataFrame(SN.fit_transform(X_num), columns=X_num.columns, index=index)
+
+
+    X_encoded = pd.concat([X_str[['name', 'ID']], poids_numerique(X_num_scaled, colonnes_fixes, poids_fixes_dict)], axis=1)
+    X_encoded = X_encoded.dropna()
+
+    return X_encoded, SN
+
+
+# FONCTION 4
+
+def joueurs_similaires(X_encoded, id_joueur, model, df_recherche):
+
+  # Vérifier si le Pokémon existe dans le dataset
+  if id_joueur not in df_recherche['ID'].values:
+      return f"Le Pokémon {id_joueur} n'est pas dans le dataset."
+
+  # Récupérer les caractéristiques du Pokémon
+  joueur_a_predire = X_encoded[X_encoded['ID'] == id_joueur]
+
+  i, indices = model.kneighbors(joueur_a_predire.select_dtypes(include=[np.number]))
+
+  return df_recherche.iloc[indices[0]].reset_index(drop=True)
+
+
+
+
+
 
 # STREAMLIT
 
@@ -159,9 +351,14 @@ if selection == 'Accueil':
 
 elif selection == 'Trouvez un joueur':
 
+
+    if 'Unnamed: 0' in df.columns:
+        df = df.drop(columns=['Unnamed: 0'], axis = 1)
+    df = df.dropna()
+    df['ID'] = df['ID'].astype(str)
+
     df_recherche = df.copy()
 
-    
     df_recherche['name'] = df_recherche['name'].apply(lambda x : ",".join(x) if type(x) == list else x)
     df_recherche['name'] = df_recherche['name'].apply(lambda x : x.lower())
 
@@ -171,9 +368,7 @@ elif selection == 'Trouvez un joueur':
 
     choix_joueur = st.text_input('Tapez le nom du joueur souhaité :')
 
-    if choix_joueur:
-
-        # On vérifie si notre film existe
+    if choix_joueur:    
         
         recherche = choix_joueur
         recherche2 = recherche.lower().split(" ")
@@ -187,6 +382,58 @@ elif selection == 'Trouvez un joueur':
         else:
             st.markdown("Êtes-vous sûr de l'orthographe ?")
             st.markdown("Ou alors ce joueur n'est pas dans nos bases.")
+
+    name = df_recherche['name'].iloc[0]
+    id_joueur = df_recherche['ID'].iloc[0]
+    position = df_recherche['Best position'][df_recherche['ID'] == id_joueur].iloc[0]
+
+    st.markdown(id_joueur)
+    st.markdown(position)
+    st.markdown(name)
+    liste_def = ["CB", "RB", "LB"]
+    liste_lat = ["RB", "RWB", "LB", "LWB"]
+    liste_milieu_def = ["CDM", "CM"]
+    liste_milieu_off = ["CAM", "LM", "RM"]
+    liste_ailies = ["LM", "RM", "LW", "RW"]
+    liste_att = ["RW", "LW", "ST", "CF"]
+    gardien = ["GK"]
+    liste_cara_gk = ['GK Diving', 'GK Handling', 'GK Kicking', 'GK Positioning', 'GK Reflexes']
+
+    df_recherche = df.copy()
+
+    if position in liste_def :
+        df_recherche = df[df['Best position'].isin(liste_def)]
+        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+    elif position in liste_lat :
+        df_recherche = df[df['Best position'].isin(liste_lat)]
+        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+    elif position in liste_milieu_def :
+        df_recherche = df[df['Best position'].isin(liste_milieu_def)]
+        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+    elif position in liste_milieu_off :
+        df_recherche = df[df['Best position'].isin(liste_milieu_off)]
+        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+    elif position in liste_ailies :
+        df_recherche = df[df['Best position'].isin(liste_ailies)]
+        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+    elif position in liste_att :
+        df_recherche = df[df['Best position'].isin(liste_att)]
+        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+    elif position in gardien :
+        df_recherche = df[df['Best position'].isin(gardien)]
+
+    X = df_recherche.copy()
+    X_encoded, SN = encodage_X(X, 'standard', colonnes_fixes, poids_fixes_dict)
+
+    k=10
+    model = NearestNeighbors(n_neighbors=k, metric='euclidean')
+    model.fit(X_encoded.select_dtypes(include=['number']))
+    resultat = joueurs_similaires(X_encoded, id_joueur, model, df_recherche)
+    
+    st.dataframe(resultat)
+
+
+    
 
 
 elif selection == 'Trouvez le joueur idéal':
