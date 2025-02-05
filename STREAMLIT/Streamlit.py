@@ -377,60 +377,62 @@ elif selection == 'Trouvez un joueur':
             df_recherche2 = df_recherche[df_recherche['name'].str.contains(element)]
             df_recherche = df_recherche2
         
-        if len(df_recherche) != 0:
-            st.dataframe(df_recherche)
-        else:
+        if len(df_recherche) == 0:
             st.markdown("Êtes-vous sûr de l'orthographe ?")
             st.markdown("Ou alors ce joueur n'est pas dans nos bases.")
 
-    name = df_recherche['name'].iloc[0]
-    id_joueur = df_recherche['ID'].iloc[0]
-    position = df_recherche['Best position'][df_recherche['ID'] == id_joueur].iloc[0]
+        else:
+            name = st.selectbox("Quel joueur parmi notre base précisément ?",(df_recherche),)
 
-    st.markdown(id_joueur)
-    st.markdown(position)
-    st.markdown(name)
-    liste_def = ["CB", "RB", "LB"]
-    liste_lat = ["RB", "RWB", "LB", "LWB"]
-    liste_milieu_def = ["CDM", "CM"]
-    liste_milieu_off = ["CAM", "LM", "RM"]
-    liste_ailies = ["LM", "RM", "LW", "RW"]
-    liste_att = ["RW", "LW", "ST", "CF"]
-    gardien = ["GK"]
-    liste_cara_gk = ['GK Diving', 'GK Handling', 'GK Kicking', 'GK Positioning', 'GK Reflexes']
 
-    df_recherche = df.copy()
+            df['name'] = df['name'].apply(lambda x : ",".join(x) if type(x) == list else x)
+            df['name'] = df['name'].apply(lambda x : x.lower())
 
-    if position in liste_def :
-        df_recherche = df[df['Best position'].isin(liste_def)]
-        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-    elif position in liste_lat :
-        df_recherche = df[df['Best position'].isin(liste_lat)]
-        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-    elif position in liste_milieu_def :
-        df_recherche = df[df['Best position'].isin(liste_milieu_def)]
-        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-    elif position in liste_milieu_off :
-        df_recherche = df[df['Best position'].isin(liste_milieu_off)]
-        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-    elif position in liste_ailies :
-        df_recherche = df[df['Best position'].isin(liste_ailies)]
-        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-    elif position in liste_att :
-        df_recherche = df[df['Best position'].isin(liste_att)]
-        df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-    elif position in gardien :
-        df_recherche = df[df['Best position'].isin(gardien)]
+            df_recherche = df[df['name'].str.contains(name)]
+            id_joueur = df_recherche['ID'].iloc[0]
+            position = df_recherche['Best position'][df_recherche['ID'] == id_joueur].iloc[0]
 
-    X = df_recherche.copy()
-    X_encoded, SN = encodage_X(X, 'standard', colonnes_fixes, poids_fixes_dict)
+            liste_def = ["CB", "RB", "LB"]
+            liste_lat = ["RB", "RWB", "LB", "LWB"]
+            liste_milieu_def = ["CDM", "CM"]
+            liste_milieu_off = ["CAM", "LM", "RM"]
+            liste_ailies = ["LM", "RM", "LW", "RW"]
+            liste_att = ["RW", "LW", "ST", "CF"]
+            gardien = ["GK"]
+            liste_cara_gk = ['GK Diving', 'GK Handling', 'GK Kicking', 'GK Positioning', 'GK Reflexes']
 
-    k=10
-    model = NearestNeighbors(n_neighbors=k, metric='euclidean')
-    model.fit(X_encoded.select_dtypes(include=['number']))
-    resultat = joueurs_similaires(X_encoded, id_joueur, model, df_recherche)
-    
-    st.dataframe(resultat)
+            df_recherche = df.copy()
+
+            if position in liste_def :
+                df_recherche = df[df['Best position'].isin(liste_def)]
+                df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+            elif position in liste_lat :
+                df_recherche = df[df['Best position'].isin(liste_lat)]
+                df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+            elif position in liste_milieu_def :
+                df_recherche = df[df['Best position'].isin(liste_milieu_def)]
+                df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+            elif position in liste_milieu_off :
+                df_recherche = df[df['Best position'].isin(liste_milieu_off)]
+                df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+            elif position in liste_ailies :
+                df_recherche = df[df['Best position'].isin(liste_ailies)]
+                df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+            elif position in liste_att :
+                df_recherche = df[df['Best position'].isin(liste_att)]
+                df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
+            elif position in gardien :
+                df_recherche = df[df['Best position'].isin(gardien)]
+
+            X = df_recherche.copy()
+            X_encoded, SN = encodage_X(X, 'standard', colonnes_fixes, poids_fixes_dict)
+
+            k=10
+            model = NearestNeighbors(n_neighbors=k, metric='euclidean')
+            model.fit(X_encoded.select_dtypes(include=['number']))
+            resultat = joueurs_similaires(X_encoded, id_joueur, model, df_recherche)
+            
+            st.dataframe(resultat)
 
 
     
