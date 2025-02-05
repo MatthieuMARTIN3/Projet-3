@@ -3,32 +3,22 @@ import streamlit as st
 import streamlit_authenticator as stauth
 from streamlit_option_menu import option_menu
 import ast
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
 from bs4 import BeautifulSoup
 import pickle
 import requests
 import re
-from bs4 import BeautifulSoup
-import requests
 import plotly.express as px
 import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
-
-import pandas as pd
+from rapidfuzz import fuzz
+from rapidfuzz import process
 import numpy as np
-# modèle
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 
 # BASE 
@@ -210,19 +200,14 @@ def encodage_X(X, type, colonnes_fixes, poids_fixes_dict):
 
 def joueurs_similaires(X_encoded, id_joueur, model, df_recherche):
 
-  # Vérifier si le Pokémon existe dans le dataset
   if id_joueur not in df_recherche['ID'].values:
       return f"Le Pokémon {id_joueur} n'est pas dans le dataset."
-
-  # Récupérer les caractéristiques du Pokémon
+  
   joueur_a_predire = X_encoded[X_encoded['ID'] == id_joueur]
 
   i, indices = model.kneighbors(joueur_a_predire.select_dtypes(include=[np.number]))
 
   return df_recherche.iloc[indices[0]].reset_index(drop=True)
-
-
-
 
 
 
@@ -293,6 +278,8 @@ elif selection == 'Trouvez un joueur':
     df['ID'] = df['ID'].astype(str)
 
     df_recherche = df.copy()
+  
+
 
     df_recherche['name'] = df_recherche['name'].apply(lambda x : ",".join(x) if type(x) == list else x)
     df_recherche['name'] = df_recherche['name'].apply(lambda x : x.lower())
@@ -303,21 +290,26 @@ elif selection == 'Trouvez un joueur':
 
     choix_joueur = st.text_input('Tapez le nom du joueur souhaité :')
 
+    resultat_nom = process.extract(choix_joueur, df_recherche['name'].to_list(), score_cutoff = 50, limit = 3)
+
     if choix_joueur:    
         
-        recherche = choix_joueur
-        recherche2 = recherche.lower().split(" ")
+        # recherche = choix_joueur
+        # recherche2 = recherche.lower().split(" ")
 
-        for element in recherche2:
-            df_recherche2 = df_recherche[df_recherche['name'].str.contains(element)]
-            df_recherche = df_recherche2
+        # for element in recherche2:
+        #     df_recherche2 = df_recherche[df_recherche['name'].str.contains(element)]
+        #     df_recherche = df_recherche2
         
         if len(df_recherche) == 0:
             st.markdown("Êtes-vous sûr de l'orthographe ?")
             st.markdown("Ou alors ce joueur n'est pas dans nos bases.")
 
         else:
-            name = st.selectbox("Quel joueur parmi notre base précisément ?",(df_recherche),)
+            liste_nom = []
+            for n in range(len(resultat_nom)):
+                liste_nom.append(resultat_nom[n][0])
+            name = st.selectbox("Quel joueur parmi notre base précisément ?",(liste_nom))
 
             poids_fixes_dict = {
                                 'Age': 1,  
@@ -403,26 +395,27 @@ elif selection == 'Trouvez un joueur':
 
                 df_recherche = df.copy()
 
-                if position in liste_def :
-                    df_recherche = df[df['Best position'].isin(liste_def)]
-                    df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-                elif position in liste_lat :
-                    df_recherche = df[df['Best position'].isin(liste_lat)]
-                    df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-                elif position in liste_milieu_def :
-                    df_recherche = df[df['Best position'].isin(liste_milieu_def)]
-                    df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-                elif position in liste_milieu_off :
-                    df_recherche = df[df['Best position'].isin(liste_milieu_off)]
-                    df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-                elif position in liste_ailies :
-                    df_recherche = df[df['Best position'].isin(liste_ailies)]
-                    df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-                elif position in liste_att :
-                    df_recherche = df[df['Best position'].isin(liste_att)]
-                    df_recherche = df_recherche.drop(columns=liste_cara_gk, axis = 1)
-                elif position in gardien :
+                if position in gardien :
                     df_recherche = df[df['Best position'].isin(gardien)]
+                else:
+                    if position in liste_def :
+                        df_recherche = df[df['Best position'].isin(liste_def)]
+                    elif position in liste_lat :
+                        df_recherche = df[df['Best position'].isin(liste_lat)]
+                    elif position in liste_milieu_def :
+                        df_recherche = df[df['Best position'].isin(liste_milieu_def)]
+                    elif position in liste_milieu_off :
+                        df_recherche = df[df['Best position'].isin(liste_milieu_off)]
+                    elif position in liste_ailies :
+                        df_recherche = df[df['Best position'].isin(liste_ailies)]
+                    elif position in liste_att :
+                        df_recherche = df[df['Best position'].isin(liste_att)]
+                    elif position in gardien :
+                        df_recherche = df[df['Best position'].isin(gardien)]
+
+                    for element in liste_cara_gk:
+                        for n in range(len(df_recherche)):
+                            df_recherche[element].iloc[n] = 0
 
                 X = df_recherche.copy()
                 X_encoded, SN = encodage_X(X, 'standard', colonnes_fixes, poids_fixes_dict)
@@ -431,8 +424,168 @@ elif selection == 'Trouvez un joueur':
                 model = NearestNeighbors(n_neighbors=k, metric='euclidean')
                 model.fit(X_encoded.select_dtypes(include=['number']))
                 resultat = joueurs_similaires(X_encoded, id_joueur, model, df_recherche)
+
+                df_final = resultat.copy()
+                df_final = df_final.sort_values(by = 'Overall rating', ascending = False)
+
+                if resultats:
+
+                    col1, col2, col3, col4, col5 = st.columns(5)
+                    with col1:
+                        st.markdown("<h6 style='text-align: center; color: white;'>Name</h6>", unsafe_allow_html=True)
+                    with col2:
+                        st.markdown("<h6 style='text-align: center; color: white;'>Overall rating</h6>", unsafe_allow_html=True)
+                    with col3:
+                        st.markdown("<h6 style='text-align: center; color: white;'>Salaire</h6>", unsafe_allow_html=True)
+                    with col4:
+                        st.markdown("<h6 style='text-align: center; color: white;'>Valeur</h6>", unsafe_allow_html=True)
+                    with col5:
+                        st.markdown("<h6 style='text-align: center; color: white;'>Fin de contrat</h6>", unsafe_allow_html=True)
+
+                    if len(critere) > 5:
+                        critere = critere[:5]
+                    p = len(critere)
+
+                    for n in range(len(df_final)):
+
+                        date_contrat = df_final['Team & Contract'].iloc[n]
+                        nom = df_final['name'].iloc[n]
+                        score = df_final['Overall rating'].iloc[n]
+                        salary = df_final['Wage'].iloc[n]
+                        achat = df_final['Value'].iloc[n]
+
+                        col6, col7, col8, col9, col10 = st.columns(5)
+
+                        with col6:
+                            st.markdown(f"<div style='text-align: center;'>{nom}</div>", unsafe_allow_html=True)
+                        with col7:
+                            st.markdown(f"<div style='text-align: center;'>{score}</div>", unsafe_allow_html=True)
+                        with col8:
+                            st.markdown(f"<div style='text-align: center;'>{montant(salary)}</div>", unsafe_allow_html=True)
+                        with col9:
+                            st.markdown(f"<div style='text-align: center;'>{montant(achat)}</div>", unsafe_allow_html=True)
+                        with col10:
+                            st.markdown(f"<div style='text-align: center;'>{date_contrat}</div>", unsafe_allow_html=True)
+
+
+                        if p == 1:
+                            element = critere[p-1]
+                            st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                        elif p == 2:
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                element = critere[p-2]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col2:
+                                element = critere[p-1]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                        elif p == 3:
+                            col1, col2, col3, = st.columns(3)
+                            with col1:
+                                element = critere[p-3]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col2:
+                                element = critere[p-2]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col3:
+                                element = critere[p-1]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                        elif p == 4:
+                            col1, col2, col3, col4 = st.columns(4)
+                            with col1:
+                                element = critere[p-4]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col2:
+                                element = critere[p-3]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col3:
+                                element = critere[p-2]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col4:
+                                element = critere[p-1]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                        elif p == 5:
+                            col1, col2, col3, col4, col5 = st.columns(5)
+                            with col1:
+                                element = critere[p-5]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col2:
+                                element = critere[p-4]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col3:
+                                element = critere[p-3]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col4:
+                                element = critere[p-2]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+                            with col5:
+                                element = critere[p-1]
+                                st.markdown(f"<div style='text-align: center;'>{element} : {df_final[element].iloc[n]}</div>", unsafe_allow_html=True)
+
+                        col11, col12 = st.columns(2)
+
+                        with col11:
+                            dico_colonnes = {}
+                            dico_colonnes = {'Attacking' : float(df_final[attacking].iloc[n].mean()),
+                                    'Skill' : float(df_final[skill].iloc[n].mean()),
+                                    'Movement' : float(df_final[movement].iloc[n].mean()),
+                                    'Power' : float(df_final[power].iloc[n].mean()),
+                                    'Mentality' : float(df_final[mentality].iloc[n].mean()),
+                                    'Defending': float(df_final[defending].iloc[n].mean()),
+                                    'Goalkeeping' : float(df_final[goalkeeping].iloc[n].mean())}
+
+                            data = pd.DataFrame.from_dict(dico_colonnes, orient = 'index').reset_index()
+
+                            data = data.rename({'index' : 'theta',
+                                                0 : 'r'},
+                                            axis = 1)
+
+                            if int(data['r'].sum()) > 0:
+
+                                st.markdown(f"<div style='text-align: center;'>Statistiques Globale : {int(round(data['r'].mean(), 0))}</div>", unsafe_allow_html=True)
+                                fig = px.line_polar(data, r = 'r', theta= 'theta', line_close=True)
+                                fig.update_layout(polar=dict(radialaxis=dict(range=[0, 100])))
+
+                                st.plotly_chart(fig)
+
+                        with col12:
+                        
+                            attaque = ['RW', 'LW', 'CF']
+                            milieu = ['RM', 'LM', 'CDM', 'CAM', 'CM']
+                            defense = ['RB', 'LB', 'CB']
+                            gardien = ['GK']
+
+                            poste = df_final['Best position'].iloc[n]
+
+                            if poste in attaque:
+                                colonnes_spé = attacking
+                            elif poste in defense:
+                                colonnes_spé = defending
+                            elif poste in milieu:
+                                colonnes_spé = movement
+                            elif poste in gardien:
+                                colonnes_spé = goalkeeping
+
+                            df_final_stats = df_final[colonnes_spé]
+                            dico_colonnes2 = {}
+
+                            for element in colonnes_spé:
+                                dico_colonnes2.update({element : df_final_stats[element].iloc[n]})
+
+                            data = pd.DataFrame.from_dict(dico_colonnes2, orient = 'index').reset_index()
+
+                            data = data.rename({'index' : 'theta',
+                                                0 : 'r'},
+                                            axis = 1)
+                            if int(data['r'].sum()) > 0:
+                                st.markdown(f"<div style='text-align: center;'>Statistiques Spécifiques : {int(round(data['r'].mean(), 0))}</div>", unsafe_allow_html=True)
+                                
+                                fig = px.line_polar(data, r = 'r', theta= 'theta', line_close=True)
+                                fig.update_layout(polar=dict(radialaxis=dict(range=[0, 100])))
+
+                                st.plotly_chart(fig)
+
                 
-                st.dataframe(resultat)
 
 
     
@@ -440,7 +593,7 @@ elif selection == 'Trouvez un joueur':
 
 elif selection == 'Trouvez le joueur idéal':
 
-
+    st.header("👇 Trouvez votre joueur idéal :")
 
 # Trouver un joueur selon certaines caractéristiques
 
