@@ -22,11 +22,21 @@ import seaborn as sns
 
 
 # BASE 
+df1 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_1.csv')
+df2 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_2.csv')
+df3 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_3.csv')
+df4 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_4.csv')
+df5 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_5.csv')
+df6 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_6.csv')
+df7 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_7.csv')
+df8 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_8.csv')
+df9 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_9.csv')
+df10 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_10.csv')
 
-df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset_a_jour.csv')
+df = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9, df10])
 
 df = df.drop_duplicates(subset=['ID'])
-df = df[df['name'].isna() == False]
+df = df[(df['name'].isna() == False) | (df['name'] == 'Pas encore fait')]
 df['name'] = df['name'].astype(str)
 df['name'] = df['name'].apply(lambda x : x.split(',') if ',' in x else x)
 df['Team & Contract'] = df['Team & Contract'].apply(lambda x : int(x) if x != 'Unknown' else 0)
