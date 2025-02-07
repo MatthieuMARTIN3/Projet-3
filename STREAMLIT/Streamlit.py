@@ -22,20 +22,21 @@ import seaborn as sns
 
 
 # BASE 
-df1 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_1.csv')
-df2 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_2.csv')
-df3 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_3.csv')
-df4 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_4.csv')
-df5 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_5.csv')
-df6 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_6.csv')
-df7 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_7.csv')
-df8 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_8.csv')
-df9 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_9.csv')
-df10 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_10.csv')
+# df1 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_1.csv')
+# df2 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_2.csv')
+# df3 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_3.csv')
+# df4 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_4.csv')
+# df5 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_5.csv')
+# df6 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_6.csv')
+# df7 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_7.csv')
+# df8 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_8.csv')
+# df9 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_9.csv')
+# df10 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_10.csv')
 
-df = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9, df10])
+# df = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9, df10])
 
-df = df.drop_duplicates(subset=['ID'])
+df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset_a_jour.csv')
+df = df.drop_duplicates(subset='ID', keep = 'first')
 df = df[(df['name'].isna() == False) | (df['name'] == 'Pas encore fait')]
 df['name'] = df['name'].astype(str)
 df['name'] = df['name'].apply(lambda x : x.split(',') if ',' in x else x)
@@ -197,6 +198,7 @@ def encodage_X(X, type, colonnes_fixes, poids_fixes_dict):
         SN = StandardScaler()
     else:
         SN = MinMaxScaler()
+   
     X_num_scaled = pd.DataFrame(SN.fit_transform(X_num), columns=X_num.columns, index=index)
 
 
@@ -210,6 +212,8 @@ def encodage_X(X, type, colonnes_fixes, poids_fixes_dict):
 
 def joueurs_similaires(X_encoded, id_joueur, model, df_recherche):
 
+  df_recherche['ID'] = df_recherche['ID'].astype(str)
+  id_joueur = str(id_joueur)
   if id_joueur not in df_recherche['ID'].values:
       return f"Le Pokémon {id_joueur} n'est pas dans le dataset."
   
@@ -281,15 +285,13 @@ if selection == 'Accueil':
 
 elif selection == 'Trouvez un joueur':
 
-
-    if 'Unnamed: 0' in df.columns:
-        df = df.drop(columns=['Unnamed: 0'], axis = 1)
-    df = df.dropna()
-    df['ID'] = df['ID'].astype(str)
-
     df_recherche = df.copy()
-  
 
+    if 'Unnamed: 0' in df_recherche.columns:
+        df_recherche = df_recherche.drop(columns=['Unnamed: 0'], axis = 1)
+    
+    df_recherche = df_recherche.dropna()
+    df_recherche['ID'] = df_recherche['ID'].astype(str)
 
     df_recherche['name'] = df_recherche['name'].apply(lambda x : ",".join(x) if type(x) == list else x)
     df_recherche['name'] = df_recherche['name'].apply(lambda x : x.lower())
@@ -384,13 +386,49 @@ elif selection == 'Trouvez un joueur':
                 for element in critere:
                     poids_fixes_dict.update({element : 2})
 
+            st.header("Parlons chiffres :")
+                
+            critere_budget = st.toggle("Avez-vous un critère de coût de transfert ?", value = False)
+            if critere_budget:
+            # budget_transfert = st.slider("Quelle valeur ?", min(df_final['Value']), max(df_final['Value']), value=(min(df_final['Value']), max(df_final['Value'])))
+            # min_budget = min(budget_transfert)
+            # max_budget = max(budget_transfert)
+
+                col1, col2 = st.columns(2)
+                with col2:
+                    max_budget = st.text_input("Quel est le coût de transfert maximum ?", max(df_recherche['Value']), autocomplete= str(max(df_recherche['Value'])))
+                    
+                with col1:
+                    min_budget = st.text_input("Quel est le coût de transfert minimum ?", min(df_recherche['Value']), autocomplete= str(max(df_recherche['Value'])))
+                
+                max_budget = int(max_budget) 
+                min_budget = int(min_budget)
+
+
+            critere_salaire = st.toggle("Avez-vous un critère de salaire ?", value = False)
+            if critere_salaire:
+                # budget_salaire = st.slider("Quelle salaire ?", min(df_recherche['Wage']), max(df_recherche['Wage']), value=(min(df_recherche['Wage']), max(df_recherche['Wage'])))
+                # min_salaire = min(budget_salaire)
+                # max_salaire = max(budget_salaire)
+
+                col1, col2 = st.columns(2)
+                with col2:
+                    max_salaire = st.text_input("Quel est le salaire maximum ?", max(df_recherche['Wage']), autocomplete= str(max(df_recherche['Wage'])))
+                with col1:
+                    min_salaire = st.text_input("Quel est le salaire minimum ?", min(df_recherche['Wage']), autocomplete= str(max(df_recherche['Wage'])))
+                    
+                max_salaire = int(max_salaire)
+                min_salaire = int(min_salaire)
+
+
+
             resultats = st.button("Voir les résultats", type = 'primary')
 
             if resultats:
-                df['name'] = df['name'].apply(lambda x : ",".join(x) if type(x) == list else x)
-                df['name'] = df['name'].apply(lambda x : x.lower())
-
-                df_recherche = df[df['name'].str.contains(name)]
+                df_recherche['name'] = df_recherche['name'].apply(lambda x : ",".join(x) if type(x) == list else x)
+                df_recherche['name'] = df_recherche['name'].apply(lambda x : x.lower())
+                df_recherche['ID'] = df_recherche['ID'].astype(str)
+                df_recherche = df_recherche[df_recherche['name'].str.contains(name)]
                 id_joueur = df_recherche['ID'].iloc[0]
                 position = df_recherche['Best position'][df_recherche['ID'] == id_joueur].iloc[0]
 
@@ -402,8 +440,6 @@ elif selection == 'Trouvez un joueur':
                 liste_att = ["RW", "LW", "ST", "CF"]
                 gardien = ["GK"]
                 liste_cara_gk = ['GK Diving', 'GK Handling', 'GK Kicking', 'GK Positioning', 'GK Reflexes']
-
-                df_recherche = df.copy()
 
                 if position in gardien :
                     df_recherche = df[df['Best position'].isin(gardien)]
@@ -427,16 +463,28 @@ elif selection == 'Trouvez un joueur':
                         for n in range(len(df_recherche)):
                             df_recherche[element].iloc[n] = 0
 
-                X = df_recherche.copy()
-                X_encoded, SN = encodage_X(X, 'standard', colonnes_fixes, poids_fixes_dict)
+                if critere_budget:
+                    df_recherche = df_recherche[df_recherche['Value'] <= max_budget]
+                    df_recherche = df_recherche[df_recherche['Value'] >= min_budget]
+                if critere_salaire:
+                    df_recherche = df_recherche[df_recherche['Wage'] <= max_salaire]
+                    df_recherche = df_recherche[df_recherche['Wage'] >= min_salaire]
 
+                X = df_recherche.copy()
+                
+                X['ID'] = X['ID'].astype(str)
+                X_encoded, SN = encodage_X(X, 'standard', colonnes_fixes, poids_fixes_dict)
+                
                 k=8
                 model = NearestNeighbors(n_neighbors=k, metric='euclidean')
                 model.fit(X_encoded.select_dtypes(include=['number']))
                 resultat = joueurs_similaires(X_encoded, id_joueur, model, df_recherche)
+ 
+
+
+                resultat = resultat.sort_values(by = 'Overall rating', ascending = False)
 
                 df_final = resultat.copy()
-                df_final = df_final.sort_values(by = 'Overall rating', ascending = False)
 
                 if resultats:
 
@@ -603,6 +651,8 @@ elif selection == 'Trouvez un joueur':
 
 elif selection == 'Trouvez le joueur idéal':
 
+    df_final = df.copy()
+
     st.header("👇 Trouvez votre joueur idéal :")
 
 # Trouver un joueur selon certaines caractéristiques
@@ -688,7 +738,7 @@ elif selection == 'Trouvez le joueur idéal':
 
     critere_age = st.toggle("Avez-vous un critère d'âge ?", value = False)
     if critere_age:
-        age = st.slider("Quelle tranche d'âge ?", int(df['Age'].min()), int(df['Age'].max()), value = (int(df['Age'].min()), int(df['Age'].max())))
+        age = st.slider("Quelle tranche d'âge ?", int(df_final['Age'].min()), int(df_final['Age'].max()), value = (int(df_final['Age'].min()), int(df_final['Age'].max())))
         min_age = min(age)
         max_age = max(age)
         df_final = df_final[df_final['Age'] >= min_age]
@@ -696,7 +746,7 @@ elif selection == 'Trouvez le joueur idéal':
 
     critere_taille = st.toggle("Avez-vous un critère de taille ?", value = False)
     if critere_taille:
-        taille = st.slider("Quelle taille ?", min(df['Height']), max(df['Height']), value=(min(df['Height']), max(df['Height'])))
+        taille = st.slider("Quelle taille ?", min(df_final['Height']), max(df_final['Height']), value=(min(df_final['Height']), max(df_final['Height'])))
         min_taille = min(taille)
         max_taille = max(taille)
         df_final = df_final[df_final['Height'] <= max_taille]
