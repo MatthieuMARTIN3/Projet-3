@@ -250,7 +250,7 @@ if selection == 'Accueil':
         with col3:
             st.markdown("<h2 style='text-align: center; color: white;'>Matthieu</h2>", unsafe_allow_html=True)
             url = "https://www.linkedin.com/in/matthieu-martin-8063a417a/"
-            st.markdown("[LinkedIn](%s)" %url)
+            st.markdown("<h2 style='text-align: center; color: white;'>LinkedIn</h2>(%s)" %url, unsafe_allow_html=True )
             url = "https://github.com/MatthieuMARTIN3"
             st.markdown("[GitHub](%s)" %url)           
             st.image("/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/Images/Ctc6lbkXYAA8UoA-removebg-preview.png", width = 150)
