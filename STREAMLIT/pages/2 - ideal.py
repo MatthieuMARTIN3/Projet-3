@@ -20,14 +20,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 import seaborn as sns
 
-# Import CSS
-
-# def local_css(styles):
-#     with open(styles) as f:
-#         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
-# local_css("/Users/kilian/Documents/GitHub/Bis/STREAMLIT/styles.css")
-
 # BASE 
 # df1 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_1.csv')
 # df2 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_2.csv')
@@ -493,13 +485,6 @@ if resultats:
                 st.plotly_chart(fig)
 
         st.markdown("""---""")
-
-            
-
-
-
-
-
 
 
 

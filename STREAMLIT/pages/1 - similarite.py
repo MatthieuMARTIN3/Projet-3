@@ -20,13 +20,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 import seaborn as sns
 
-# Import CSS
-
-# def local_css(styles):
-#     with open(styles) as f:
-#         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
-# local_css("/Users/kilian/Documents/GitHub/Bis/STREAMLIT/styles.css")
 
 # BASE 
 # df1 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_1.csv')
@@ -41,6 +34,8 @@ import seaborn as sns
 # df10 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_10.csv')
 
 # df = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9, df10])
+
+# Définir le CSS personnalisé pour changer la couleur de fond
 
 df = pd.read_csv('STREAMLIT/BD/dataset_a_jour.csv')
 df = df.drop_duplicates(subset='ID', keep = 'first')
@@ -267,8 +262,7 @@ resultat_nom = process.extract(choix_joueur, df_recherche['name'].to_list(), sco
 
 
 if choix_joueur:    
-    st.markdown(len(df_recherche))
-    st.markdown(len(df))
+
     # recherche = choix_joueur
     # recherche2 = recherche.lower().split(" ")
 

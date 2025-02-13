@@ -10,3 +10,19 @@ st.logo("https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/B
 pg = st.navigation(nav)
 
 pg.run()
+
+custom_css = """
+    <style>
+    /* Modifier l'arrière-plan de la page principale */
+    .stApp {
+        background-color: rgba(13, 52, 4, 0.6) !important;
+    }
+
+    /* Modifier l'arrière-plan du volet de navigation (sidebar) */
+    section[data-testid="stSidebar"] {
+        background-color: #666866 !important; /* Couleur gris foncé */
+    }
+    </style>
+"""
+
+st.markdown(custom_css, unsafe_allow_html=True)

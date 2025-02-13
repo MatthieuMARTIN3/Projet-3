@@ -12,8 +12,3 @@ icon = "👬🏻"
 path = "/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/pages/2 - ideal.py"
 name = "Trouver le joueur idéal"
 icon = "🔎"
-
-[[pages]]
-path = "/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/pages/3 - staff.py"
-name = "Staff technique"
-icon = "👨‍🔬"
