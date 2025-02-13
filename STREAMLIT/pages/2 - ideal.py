@@ -21,18 +21,6 @@ from sklearn.neighbors import KNeighborsClassifier
 import seaborn as sns
 
 # BASE 
-# df1 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_1.csv')
-# df2 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_2.csv')
-# df3 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_3.csv')
-# df4 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_4.csv')
-# df5 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_5.csv')
-# df6 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_6.csv')
-# df7 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_7.csv')
-# df8 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_8.csv')
-# df9 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_9.csv')
-# df10 = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/BD/dataset/dataset_a_jour_10.csv')
-
-# df = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9, df10])
 
 df = pd.read_csv('STREAMLIT/BD/dataset_a_jour.csv')
 df = df.drop_duplicates(subset='ID', keep = 'first')
@@ -228,32 +216,10 @@ def joueurs_similaires(X_encoded, id_joueur, model, df_recherche):
 
 df_final = df.copy()
 
-# with st.sidebar:
-#     selection = option_menu(
-#                 menu_title=None,
-#                 options = ["Accueil", "Trouvez un joueur", "Trouvez le joueur idéal"]
-#             )
-
-
-# selection == 'Trouvez le joueur idéal':
-
-df_final = df.copy()
-
 st.header("👇 Trouvez votre joueur idéal :")
 
-# Trouver un joueur selon certaines caractéristiques
-
-# for element in colonnes:
-#     for n in range(len(df_final)):
-#         if "+" in df_final[element].iloc[n] or "-" in df_final[element].iloc[n]:
-#             df_final[element].iloc[n] = calcul(df_final[element].iloc[n])
-#             df_final[element].iloc[n] = float(df_final[element].iloc[n])
-#         else:
-#             df_final[element].iloc[n]= float(df_final[element].iloc[n])
-
-# col1, col2, col3 = st.columns(3)
-
 st.header("Le poste :")
+
 poste = st.selectbox("Quel poste recherchez-vous ?",
 ['... Choisir', 'Gardien', 'Défenseur', 'Milieu', 'Attaquant'])
 
@@ -342,39 +308,34 @@ if critere_taille:
 st.header("Parlons chiffres :")
 
 critere_budget = st.toggle("Avez-vous un critère de coût de transfert ?", value = False)
+
 if critere_budget:
-    # budget_transfert = st.slider("Quelle valeur ?", min(df_final['Value']), max(df_final['Value']), value=(min(df_final['Value']), max(df_final['Value'])))
-    # min_budget = min(budget_transfert)
-    # max_budget = max(budget_transfert)
 
     col1, col2 = st.columns(2)
+
     with col2:
         max_budget = st.text_input("Quel est le coût de transfert maximum ?", max(df_final['Value']), autocomplete= str(max(df_final['Value'])))
         
     with col1:
         min_budget = st.text_input("Quel est le coût de transfert minimum ?", min(df_final['Value']), autocomplete= str(max(df_final['Value'])))
-    
-    max_budget = int(max_budget) 
-    min_budget = int(min_budget)
-    df_final = df_final[df_final['Value'] <= max_budget]
-    df_final = df_final[df_final['Value'] >= min_budget]
+
+    df_final = df_final[df_final['Value'] <= int(max_budget)]
+    df_final = df_final[df_final['Value'] >= int(min_budget)]
 
 critere_salaire = st.toggle("Avez-vous un critère de salaire ?", value = False)
+
 if critere_salaire:
-    # budget_salaire = st.slider("Quelle salaire ?", min(df_final['Wage']), max(df_final['Wage']), value=(min(df_final['Wage']), max(df_final['Wage'])))
-    # min_salaire = min(budget_salaire)
-    # max_salaire = max(budget_salaire)
 
     col1, col2 = st.columns(2)
+    
     with col2:
         max_salaire = st.text_input("Quel est le salaire maximum ?", max(df_final['Wage']), autocomplete= str(max(df_final['Wage'])))
+    
     with col1:
         min_salaire = st.text_input("Quel est le salaire minimum ?", min(df_final['Wage']), autocomplete= str(max(df_final['Wage'])))
-        
-    max_salaire = int(max_salaire)
-    min_salaire = int(min_salaire)
-    df_final = df_final[df_final['Wage'] <= max_salaire]
-    df_final = df_final[df_final['Wage'] >= min_salaire]
+
+    df_final = df_final[df_final['Wage'] <= int(max_salaire)]
+    df_final = df_final[df_final['Wage'] >= int(min_salaire)]
 
 df_final = df_final.sort_values(by = 'Overall rating', ascending = False)
 
@@ -383,6 +344,7 @@ resultats = st.button("Voir les résultats", type = 'primary')
 if resultats:
 
     col1, col2, col3, col4, col5 = st.columns(5)
+
     with col1:
         st.markdown("<h6 style='text-align: center; color: white;'>Name</h6>", unsafe_allow_html=True)
     with col2:
