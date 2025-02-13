@@ -1,0 +1,132 @@
+import pandas as pd
+import streamlit as st
+import streamlit_authenticator as stauth
+from streamlit_option_menu import option_menu
+import ast
+from bs4 import BeautifulSoup
+import pickle
+import requests
+import re
+import plotly.express as px
+import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+from rapidfuzz import fuzz
+from rapidfuzz import process
+import numpy as np
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+import seaborn as sns
+from pytube import YouTube
+import os
+
+# Import CSS
+
+# def local_css(styles):
+#     with open(styles) as f:
+#         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+# local_css("/Users/kilian/Documents/GitHub/Bis/STREAMLIT/styles.css")
+
+
+# st.markdown(
+#     "<h1 style='text-align: center; color: white;'>Va te faire foot !</h1>",
+#     unsafe_allow_html=True
+# )
+
+st.markdown(
+    "<h3 style='text-align: center; color: white;'>Bienvenue sur notre service de recommandations de joueurs de football.</h3>",
+    unsafe_allow_html=True
+)
+
+st.markdown("""
+    <style>
+        .page-break { page-break-before: always; }
+    </style>
+""", unsafe_allow_html=True)
+
+# st.header("Va te faire foot !")
+# st.html("<p>Bienvenue sur notre service de recommandations de joueurs de football.</p>")
+
+# st.image("STREAMLIT/img/sticker-footballeur-pop-art-ambiance-sticker-col-SAND_A131.png", width=500)
+
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/file-AfJoGfAn6WiPywEs5Y4Mb2.png" width="500">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown("""
+    <style>
+        .page-break { page-break-before: always; }
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown("""---""")
+st.markdown(
+    "<h3 style='text-align: center; color: white;'>Stack technique</h3>",
+    unsafe_allow_html=True
+)
+
+st.markdown("""
+    <style>
+        .page-break { page-break-before: always; }
+    </style>
+""", unsafe_allow_html=True)
+
+col1, col2, col3, col4, col5 = st.columns(5)
+with col2:
+    st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/github-removebg-preview.png" height="50">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+    
+with col3:
+    st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/images.png" height="50">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+with col1:
+    st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/pandas_white.png" height="50">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+    
+with col4:
+    st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/Python.png" height="50">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+with col5:
+    st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/streamlit-logo-secondary-colormark-lighttext.png" height="50">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
