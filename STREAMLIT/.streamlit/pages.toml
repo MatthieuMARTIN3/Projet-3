@@ -1,0 +1,19 @@
+[[pages]]
+path = "/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/pages/0 - accueil.py"
+name = "Accueil"
+icon = "⚽"
+
+[[pages]]
+path = "/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/pages/1 - similarite.py"
+name = "Recherche d'un joueur similaire"
+icon = "👬🏻"
+
+[[pages]]
+path = "/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/pages/2 - ideal.py"
+name = "Trouver le joueur idéal"
+icon = "🔎"
+
+[[pages]]
+path = "/Users/kilian/Documents/GitHub/Projet-3/STREAMLIT/pages/3 - staff.py"
+name = "Staff technique"
+icon = "👨‍🔬"

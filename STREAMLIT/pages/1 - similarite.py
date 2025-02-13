@@ -42,13 +42,13 @@ import seaborn as sns
 
 # df = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9, df10])
 
-df = pd.read_csv('/Users/kilian/Documents/GitHub/Bis/STREAMLIT/BD/dataset_a_jour.csv')
+df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/dataset_a_jour.csv')
 df = df.drop_duplicates(subset='ID', keep = 'first')
 df = df[(df['name'].isna() == False) | (df['name'] == 'Pas encore fait')]
 df['name'] = df['name'].astype(str)
 df['name'] = df['name'].apply(lambda x : x.split(',') if ',' in x else x)
 df['Team & Contract'] = df['Team & Contract'].apply(lambda x : int(x) if x != 'Unknown' else 0)
-df = df[(df['Team & Contract'] == 0) | (df['Team & Contract'] >= 2024)]
+# df = df[(df['Team & Contract'] == 0) | (df['Team & Contract'] >= 2024)]
 df['Nom_annee'] = df.apply(lambda x : x['name'][0] + ' (' + str(2025 - x['Age']) + ')' , axis = 1)
 
 df = df[~(df['name'].isna() == True)]

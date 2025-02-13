@@ -19,7 +19,6 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 import seaborn as sns
-from pytube import YouTube
 import os
 
 # Import CSS
