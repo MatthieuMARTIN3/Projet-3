@@ -42,7 +42,7 @@ import seaborn as sns
 
 # df = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9, df10])
 
-df = pd.read_csv('/Users/kilian/Documents/GitHub/Projet-3/dataset_a_jour.csv')
+df = pd.read_csv('STREAMLIT/BD/dataset_a_jour.csv')
 df = df.drop_duplicates(subset='ID', keep = 'first')
 df = df[(df['name'].isna() == False) | (df['name'] == 'Pas encore fait')]
 df['name'] = df['name'].astype(str)
