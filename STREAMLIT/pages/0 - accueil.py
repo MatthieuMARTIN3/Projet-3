@@ -42,13 +42,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown("""
+    <style>
+        .page-break { page-break-before: always; }
+    </style>
+""", unsafe_allow_html=True)
+
 st.markdown(
-    "<h3 style='text-align: center; color: white;'>📢 Hymne du FC Va te faire foot 🎶 </h3>",
+    "<h5 style='text-align: center; color: white;'>📢 Hymne du FC Va te faire foot 🎶 </h5>",
     unsafe_allow_html=True
 )
 
 # Lecture d'un fichier audio local
-st.audio("Matthieu le Titi Parisien.mp3")
+st.audio("Allez tourner terrain.mp3")
 
 
 st.markdown("""
