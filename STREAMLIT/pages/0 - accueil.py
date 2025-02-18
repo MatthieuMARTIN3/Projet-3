@@ -1,25 +1,15 @@
-import pandas as pd
 import streamlit as st
 import streamlit_authenticator as stauth
 from streamlit_option_menu import option_menu
-import ast
-from bs4 import BeautifulSoup
-import pickle
-import requests
-import re
-import plotly.express as px
-import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
-from rapidfuzz import fuzz
-from rapidfuzz import process
-import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 import seaborn as sns
-import os
+import streamlit.components.v1 as components
+
 
 custom_css = """
     <style>
@@ -53,9 +43,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Lecture d'un fichier audio local
 st.audio("Allez tourner terrain.mp3")
-
 
 st.markdown("""
     <style>
