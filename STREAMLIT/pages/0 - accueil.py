@@ -37,15 +37,19 @@ custom_css = """
 
 st.markdown(custom_css, unsafe_allow_html=True)
 
-# st.markdown(
-#     "<h1 style='text-align: center; color: white;'>Va te faire foot !</h1>",
-#     unsafe_allow_html=True
-# )
-
 st.markdown(
     "<h3 style='text-align: center; color: white;'>Bienvenue sur notre service de recommandations de joueurs de football.</h3>",
     unsafe_allow_html=True
 )
+
+st.markdown(
+    "<h3 style='text-align: center; color: white;'>📢 Hymne du FC Va te faire foot 🎶 </h3>",
+    unsafe_allow_html=True
+)
+
+# Lecture d'un fichier audio local
+st.audio("Matthieu le Titi Parisien.mp3")
+
 
 st.markdown("""
     <style>
@@ -53,15 +57,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# st.header("Va te faire foot !")
-# st.html("<p>Bienvenue sur notre service de recommandations de joueurs de football.</p>")
-
-# st.image("STREAMLIT/img/sticker-footballeur-pop-art-ambiance-sticker-col-SAND_A131.png", width=500)
 
 st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/file-AfJoGfAn6WiPywEs5Y4Mb2.png" width="500">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/file-AfJoGfAn6WiPywEs5Y4Mb2.png" width="500">
     </div>
     """,
     unsafe_allow_html=True
@@ -91,7 +91,7 @@ with col1:
     st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/pandas_white.png" height="50">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/pandas_white.png" height="50">
     </div>
     """,
     unsafe_allow_html=True
@@ -101,7 +101,7 @@ with col2:
     st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/github-removebg-preview.png" height="50">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/github-removebg-preview.png" height="50">
     </div>
     """,
     unsafe_allow_html=True
@@ -111,7 +111,7 @@ with col3:
     st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/images.png" height="50">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/images.png" height="50">
     </div>
     """,
     unsafe_allow_html=True
@@ -121,7 +121,7 @@ with col4:
     st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/Python.png" height="50">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/Python.png" height="50">
     </div>
     """,
     unsafe_allow_html=True
@@ -131,7 +131,7 @@ with col5:
     st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/streamlit-logo-secondary-colormark-lighttext.png" height="50">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/streamlit-logo-secondary-colormark-lighttext.png" height="50">
     </div>
     """,
     unsafe_allow_html=True
@@ -166,19 +166,19 @@ with col3:
             """
             <div style="text-align: center;">
             <a href="https://www.linkedin.com/in/matthieu-martin-8063a417a/" target="_blank">
-                <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/4096186-removebg-preview%20(1).png" width="60">
+                <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/4096186-removebg-preview%20(1).png" width="60">
             </a>
             """,
             unsafe_allow_html=True
             )
     
-        # st.image("/Users/kilian/Documents/GitHub/Test_projet_3/STREAMLIT/img/Sans titre.png", width = 50)
+        # st.image("/Users/kilian/Documents/GitHub/Test_projet_3/https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/Sans titre.png", width = 50)
     with subcol2:
             st.markdown(
             """
             <div style="text-align: center;">
             <a href="https://github.com/MatthieuMARTIN3" target="_blank">
-                <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/Sans titre.png" width="60">
+                <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/Sans titre.png" width="60">
             </a>
             """,
             unsafe_allow_html=True
@@ -187,7 +187,7 @@ with col3:
     st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/Ctc6lbkXYAA8UoA-removebg-preview.png" height="400">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/Ctc6lbkXYAA8UoA-removebg-preview.png" height="400">
     </a>
     """,
     unsafe_allow_html=True
@@ -208,7 +208,7 @@ with col4:
             """
             <div style="text-align: center;">
             <a href="https://www.linkedin.com/in/loic-fotsing-637a221a8/" target="_blank">
-                <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/4096186-removebg-preview%20(1).png" width="60">
+                <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/4096186-removebg-preview%20(1).png" width="60">
             </a>
             """,
             unsafe_allow_html=True
@@ -221,7 +221,7 @@ with col4:
             """
             <div style="text-align: center;">
             <a href="https://github.com/je-suis-lmfao" target="_blank">
-                <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/Sans titre.png" width="60">
+                <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/Sans titre.png" width="60">
             </a>
             """,
             unsafe_allow_html=True
@@ -230,7 +230,7 @@ with col4:
     st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/377.png" height="400">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/377.png" height="400">
     </a>
     """,
     unsafe_allow_html=True
@@ -255,7 +255,7 @@ with col5:
             """
             <div style="text-align: center;">
             <a href="https://www.linkedin.com/in/kiliancadiou/" target="_blank">
-                <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/4096186-removebg-preview%20(1).png" width="60">
+                <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/4096186-removebg-preview%20(1).png" width="60">
             </a>
             """,
             unsafe_allow_html=True
@@ -267,7 +267,7 @@ with col5:
             """
             <div style="text-align: center;">
             <a href="https://github.com/KilianCadiou" target="_blank">
-                <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/Sans titre.png" width="60">
+                <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/Sans titre.png" width="60">
             </a>
             """,
             unsafe_allow_html=True
@@ -276,7 +276,7 @@ with col5:
     st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/POSE_-16.png" height="400">
+        <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/POSE_-16.png" height="400">
     </a>
     """,
     unsafe_allow_html=True
@@ -296,7 +296,7 @@ with col6:
             """
             <div style="text-align: center;">
             <a href="https://www.linkedin.com/in/malo-le-pors-5373a8273/" target="_blank">
-                <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/4096186-removebg-preview%20(1).png" width="60">
+                <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/4096186-removebg-preview%20(1).png" width="60">
             </a>
             """,
             unsafe_allow_html=True
@@ -307,17 +307,17 @@ with col6:
             """
             <div style="text-align: center;">
             <a href="https://github.com/MaloBang" target="_blank">
-                <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/Sans titre.png" width="60">
+                <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/Sans titre.png" width="60">
             </a>
             """,
             unsafe_allow_html=True
             )
     
     st.markdown(
-    """
-    <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/KilianCadiou/Bis/main/STREAMLIT/img/20092808-removebg-preview.png" height="400">
-    </a>
-    """,
-    unsafe_allow_html=True
+        """
+        <div style="text-align: center;">
+            <img src="https://raw.githubusercontent.com/KilianCadiou/Va-Te-Faire-Foot/main/STREAMLIT/img/20092808-removebg-preview.png" height="400">
+        </div>
+        """,
+        unsafe_allow_html=True
     )
