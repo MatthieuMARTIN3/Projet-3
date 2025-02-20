@@ -420,7 +420,6 @@ if choix_joueur:
         model.fit(X_encoded.select_dtypes(include=['number']))
         resultat = joueurs_similaires(X_encoded, id_joueur, model, df_recherche)
   
-        st.markdown(resultat)
         resultat = resultat.sort_values(by = 'Overall rating', ascending = False)
 
         df_final = resultat.copy()
